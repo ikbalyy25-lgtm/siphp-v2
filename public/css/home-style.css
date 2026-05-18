@@ -1,0 +1,12 @@
+/* === CSS UNTUK SCROLL HORIZONTAL (RITEL) === */
+
+/* Sembunyikan scrollbar untuk Chrome, Safari and Opera */
+.hide-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* Sembunyikan scrollbar untuk IE, Edge, dan Firefox */
+.hide-scroll {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
