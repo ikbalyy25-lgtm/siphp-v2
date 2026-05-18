@@ -60,10 +60,6 @@
         <a href="{{ route('kepala_dinas.laporan') }}" class="nav-item">
             <i class="fas fa-file-arrow-down"></i> Unduh Laporan
         </a>
-        <div class="nav-label">Lainnya</div>
-        <a href="{{ url('/') }}" class="nav-item" target="_blank">
-            <i class="fas fa-globe"></i> Portal Publik
-        </a>
     </nav>
 
     <div style="padding:12px 10px;border-top:1px solid #f0f5f1;">

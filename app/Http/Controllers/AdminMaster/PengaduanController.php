@@ -13,11 +13,11 @@ class PengaduanController extends Controller
 {
     public function index()
     {
-        $pengaduans = DB::table('pengaduan')
+        $pengaduan = DB::table('pengaduan')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('admin.pengaduan.index', compact('pengaduans'));
+        return view('admin.pengaduan.index', compact('pengaduan'));
     }
 
     public function destroy(string $id)

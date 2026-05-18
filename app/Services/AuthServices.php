@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Hash;
-use App\Models\Admin;
+use App\Models\User;
 
 class AuthServices
 {
@@ -11,6 +11,7 @@ class AuthServices
     |--------------------------------------------------------------------------
     | Method Granular (Untuk SIPHPTest)
     |--------------------------------------------------------------------------
+    |
     */
 
     public function isBothEmpty($username, $password)
@@ -43,6 +44,7 @@ class AuthServices
     |--------------------------------------------------------------------------
     | Method Utama (Untuk ServicesTest)
     |--------------------------------------------------------------------------
+    |
     */
 
     public function login($username, $password)
@@ -58,18 +60,18 @@ class AuthServices
         }
 
         // 3. Cari User di Database
-        $admin = Admin::where('username', $username)->first();
+        $user = User::where('username', $username)->first();
 
         // 4. Cek User dan Password
-        if (!$admin || !$this->isPasswordCorrect($password, $admin->password)) {
+        if (!$user || !$this->isPasswordCorrect($password, $user->password)) {
             return ['success' => false, 'message' => 'Kredensial salah'];
         }
 
         // 5. Login Berhasil
         return [
             'success' => true,
-            'role' => 'admin',
-            'user' => $admin
+            'role' => $user->role,
+            'user' => $user
         ];
     }
 }

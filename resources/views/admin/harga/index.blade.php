@@ -40,14 +40,6 @@ body{background:var(--bg);}
                 <span id="countLabel" style="font-weight:600;color:var(--gd);">{{ count($data_harga ?? []) }} data</span>
             </p>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <button onclick="openShare()" class="btn-outline">
-                <i class="fas fa-share-nodes"></i> Bagikan
-            </button>
-            <a href="{{ route('admin.harga.create', $kategori) }}" class="btn-primary">
-                <i class="fas fa-plus"></i> Input Komoditas
-            </a>
-        </div>
     </div>
 
     {{-- Search & Filter --}}

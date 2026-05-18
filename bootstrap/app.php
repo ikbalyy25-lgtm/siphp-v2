@@ -15,6 +15,20 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
         ]);
+
+        // Pengalihan dinamis untuk user yang sudah login saat mengakses halaman guest-only (seperti /login)
+        $middleware->redirectUsersTo(function () {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            if ($user) {
+                return match ($user->role) {
+                    'admin_master' => route('admin.dashboard'),
+                    'kepala_dinas' => route('kepala_dinas.dashboard'),
+                    'admin_pasar'  => route('admin_pasar.dashboard'),
+                    default        => '/',
+                };
+            }
+            return '/';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

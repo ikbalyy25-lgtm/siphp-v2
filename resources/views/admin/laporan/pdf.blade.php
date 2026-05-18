@@ -22,12 +22,14 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 30px;
+            table-layout: fixed;
         }
 
         table,
         th,
         td {
             border: 1px solid #333;
+            word-wrap: break-word;
         }
 
         th {
@@ -66,11 +68,11 @@
         <table>
             <thead>
                 <tr>
-                    <th>Tanggal</th>
-                    <th>Kategori</th>
-                    <th>Nama Barang</th>
-                    <th style="text-align: right">Harga Kemarin</th>
-                    <th style="text-align: right">Harga Hari Ini</th>
+                    <th style="width: 18%;">Tanggal</th>
+                    <th style="width: 18%;">Kategori</th>
+                    <th style="width: 34%;">Nama Barang</th>
+                    <th style="text-align: right; width: 15%;">Harga Kemarin</th>
+                    <th style="text-align: right; width: 15%;">Harga Hari Ini</th>
                 </tr>
             </thead>
             <tbody>
@@ -79,7 +81,7 @@
                         <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                         <td>{{ ucfirst($item->kategori) }}</td>
                         <td>{{ $item->nama_barang }}</td>
-                        <td style="text-align: right">{{ number_format($item->harga_kemarin, 0, ',', '.') }}</td>
+                        <td style="text-align: right">{{ number_format($item->harga_kemarin ?? 0, 0, ',', '.') }}</td>
                         <td style="text-align: right">{{ number_format($item->harga_hari_ini, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach

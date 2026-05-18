@@ -86,10 +86,6 @@
         <a href="{{ route('admin_pasar.harga.index', 'penting') }}" class="nav-item">
             <i class="fas fa-hard-hat"></i> Barang Penting
         </a>
-        <div class="nav-label">Lainnya</div>
-        <a href="{{ url('/') }}" class="nav-item" target="_blank">
-            <i class="fas fa-globe"></i> Portal Publik
-        </a>
     </nav>
 
     <div style="padding:12px 10px;border-top:1px solid #f0f5f1;">

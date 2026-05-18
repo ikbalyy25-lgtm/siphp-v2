@@ -38,41 +38,17 @@ class HargaController extends Controller
         return view('admin.harga.index', compact('pasar', 'data_harga', 'kategori'));
     }
 
-    public function create(string $kategori)
-    {
-        $pasar = $this->getPasarAktif();
-        if (!$pasar) {
-            return redirect()->route('admin.dashboard')
-                ->with('error', 'Pilih pasar terlebih dahulu.');
-        }
-        return view('admin.harga.create', compact('pasar', 'kategori'));
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nama_barang'    => 'required|string',
-            'tanggal'        => 'required|date',
-            'harga_hari_ini' => 'required|numeric|min:0',
-            'kategori'       => 'required|in:pokok,subsidi,penting',
-        ]);
-
-        $pasarId = Session::get('pasar_aktif_id');
-
-        DB::table('harga_harians')->insert([
-            'pasar_id'       => $pasarId,
-            'nama_barang'    => $request->nama_barang,
-            'kategori'       => $request->kategori,
-            'tanggal'        => $request->tanggal,
-            'harga_hari_ini' => $request->harga_hari_ini,
-            'status'         => 'pending',
-            'created_at'     => now(),
-            'updated_at'     => now(),
-        ]);
-
-        return redirect()->route('admin.harga.index', $request->kategori)
-            ->with('success', 'Data harga berhasil disimpan.');
-    }
+     public function create(string $kategori)
+     {
+         return redirect()->route('admin.dashboard')
+             ->with('error', 'Input komoditas hanya dapat dilakukan oleh Admin Pasar.');
+     }
+ 
+     public function store(Request $request)
+     {
+         return redirect()->route('admin.dashboard')
+             ->with('error', 'Input komoditas hanya dapat dilakukan oleh Admin Pasar.');
+     }
 
     public function destroy(string $id)
     {

@@ -22,8 +22,7 @@ return new class extends Migration
             $table->decimal('harga_hari_ini', 15, 0);
 
             // PERBAIKAN DI SINI:
-            // Tambahkan 'publish' dan 'draft' agar sesuai dengan Unit Test Anda
-            $table->enum('status', ['pending', 'update', 'publish', 'draft'])->default('pending');
+            $table->enum('status', ['pending', 'update', 'publish', 'draft', 'published'])->default('pending');
 
             // Opsi Alternatif (Jika ingin lebih bebas, pakai string saja):
             // $table->string('status')->default('pending');

@@ -25,9 +25,9 @@ class AdminDashboardServices
 
     public function getHargaTerbaru($pasarId)
     {
-        // Hanya ambil harga dengan status 'publish'
+        // Hanya ambil harga dengan status 'published'
         return HargaHarian::where('pasar_id', $pasarId)
-            ->where('status', 'publish')
+            ->where('status', 'published')
             ->orderBy('tanggal', 'desc')
             ->get();
     }

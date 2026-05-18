@@ -25,8 +25,11 @@ class RoleMiddleware
         }
 
         $user = Auth::user();
+        
+        // Kompatibilitas role lama: petakan 'admin' menjadi 'admin_master'
+        $userRole = $user->role === 'admin' ? 'admin_master' : $user->role;
 
-        if (!in_array($user->role, $roles)) {
+        if (!in_array($userRole, $roles)) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 

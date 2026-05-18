@@ -332,12 +332,12 @@
             @if($jmlPengaduan > 0)<span class="nav-badge">{{ $jmlPengaduan }}</span>@endif
         </a>
 
-        <a href="/admin/kelola-admin-pasar" class="nav-item">
-            <i class="fas fa-user-cog"></i> Kelola Admin Pasar
-        </a>
-
         <a href="/admin/kelola-kepala-dinas" class="nav-item">
             <i class="fas fa-user-tie"></i> Kelola Kepala Dinas
+        </a>
+
+         <a href="/admin/kelola-admin-pasar" class="nav-item">
+            <i class="fas fa-user-cog"></i> Kelola Admin Pasar
         </a>
 
         <a href="/admin/retail" class="nav-item">
@@ -349,10 +349,6 @@
         </a>
 
         <div class="nav-section-label">Sistem</div>
-
-        <a href="{{ url('/') }}" target="_blank" class="nav-item">
-            <i class="fas fa-globe"></i> Lihat Portal Publik
-        </a>
 
         <a href="#" onclick="showLogoutModal(event)" class="nav-item" style="color:#dc2626;">
             <i class="fas fa-sign-out-alt"></i> Keluar

@@ -22,7 +22,7 @@ class PublicHargaController extends Controller
         $data_harga = DB::table('harga_harians')
             ->where('pasar_id', $pasar_id)
             ->where('kategori', $kategori)
-            ->where('status', 'update') // HANYA YANG SUDAH DI-PUBLISH
+            ->where('status', 'published') // HANYA YANG SUDAH DI-PUBLISH
             ->orderBy('created_at', 'desc')
             ->get();
 

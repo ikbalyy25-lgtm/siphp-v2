@@ -44,16 +44,15 @@ class ServicesTest extends TestCase
 
     public function test_get_harga_published()
     {
-        // Setup data harga dengan status 'update' (yang dianggap publish) dan 'draft'
+        // Setup data harga dengan status 'published' dan 'pending'
         DB::table('harga_harians')->insert([
             [
                 'pasar_id' => 1,
                 'kategori' => 'Barang Pokok',
                 'nama_barang' => 'Cabai',
                 'tanggal' => now()->toDateString(),
-                'harga_kemarin' => 14000,
                 'harga_hari_ini' => 15000,
-                'status' => 'update', // Ini akan diambil
+                'status' => 'published', // Ini akan diambil
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -62,9 +61,8 @@ class ServicesTest extends TestCase
                 'kategori' => 'Barang Pokok',
                 'nama_barang' => 'Tomat',
                 'tanggal' => now()->toDateString(),
-                'harga_kemarin' => 10000,
                 'harga_hari_ini' => 11000,
-                'status' => 'draft', // Ini TIDAK akan diambil
+                'status' => 'pending', // Ini TIDAK akan diambil
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -144,8 +142,10 @@ class ServicesTest extends TestCase
 
     public function test_berhasil_login_admin()
     {
-        DB::table('admins')->insert([
+        DB::table('users')->insert([
             'username' => 'admin',
+            'name' => 'Administrator',
+            'role' => 'admin_master',
             'password' => Hash::make('rahasia'),
             'created_at' => now(),
             'updated_at' => now()
@@ -159,8 +159,10 @@ class ServicesTest extends TestCase
 
     public function test_berhasil_login_admin_dengan_role_admin()
     {
-        DB::table('admins')->insert([
+        DB::table('users')->insert([
             'username' => 'admin',
+            'name' => 'Administrator',
+            'role' => 'admin_master',
             'password' => Hash::make('rahasia'),
             'created_at' => now(),
             'updated_at' => now()
@@ -171,7 +173,7 @@ class ServicesTest extends TestCase
 
         // Cek jika logic login Anda mengembalikan key 'role'
         if (isset($result['role'])) {
-            $this->assertEquals('admin', $result['role']);
+            $this->assertEquals('admin_master', $result['role']);
         } else {
             $this->assertTrue($result['success']);
         }
@@ -179,8 +181,10 @@ class ServicesTest extends TestCase
 
     public function test_gagal_jika_password_admin_salah()
     {
-        DB::table('admins')->insert([
+        DB::table('users')->insert([
             'username' => 'admin',
+            'name' => 'Administrator',
+            'role' => 'admin_master',
             'password' => Hash::make('rahasia'),
             'created_at' => now(),
             'updated_at' => now()
@@ -254,9 +258,8 @@ class ServicesTest extends TestCase
                 'kategori' => 'Sayur',
                 'nama_barang' => 'Cabai',
                 'tanggal' => now()->toDateString(),
-                'harga_kemarin' => 14000,
                 'harga_hari_ini' => 15000,
-                'status' => 'publish',
+                'status' => 'published',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -265,9 +268,8 @@ class ServicesTest extends TestCase
                 'kategori' => 'Sayur',
                 'nama_barang' => 'Tomat',
                 'tanggal' => now()->toDateString(),
-                'harga_kemarin' => 10000,
                 'harga_hari_ini' => 11000,
-                'status' => 'draft',
+                'status' => 'pending',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -287,9 +289,8 @@ class ServicesTest extends TestCase
                 'kategori' => 'Sayur',
                 'nama_barang' => 'Cabai',
                 'tanggal' => now()->toDateString(),
-                'harga_kemarin' => 14000,
                 'harga_hari_ini' => 15000,
-                'status' => 'publish',
+                'status' => 'published',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -298,6 +299,6 @@ class ServicesTest extends TestCase
         $service = new AdminDashboardServices();
         $result = $service->getHargaTerbaru(1);
 
-        $this->assertEquals('publish', $result->first()->status);
+        $this->assertEquals('published', $result->first()->status);
     }
 }

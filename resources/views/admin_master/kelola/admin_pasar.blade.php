@@ -21,7 +21,7 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
-                <a href="{{ route('admin_master.dashboard') }}" style="background:var(--g);color:var(--gdd);width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:13px;">
+                <a href="{{ route('admin.dashboard') }}" style="background:var(--g);color:var(--gdd);width:32px;height:32px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;font-size:13px;">
                     <i class="fas fa-arrow-left"></i>
                 </a>
                 <h1 style="font-size:22px;font-weight:800;color:var(--text);">Kelola Admin Pasar</h1>

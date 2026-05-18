@@ -120,7 +120,7 @@ class RekomendasiController extends Controller
         return view('admin.rekomendasi.index', compact('rekomendasi', 'kategori', 'ringkasan'));
     }
 
-    // API: data komparasi harga antar pasar untuk grafik
+    // API & View: data komparasi harga antar pasar untuk grafik
     public function komparasi(Request $request)
     {
         $namaBarang = $request->get('barang');
@@ -131,11 +131,35 @@ class RekomendasiController extends Controller
             ->where('h.status', 'published')
             ->where('h.kategori', $kategori)
             ->when($namaBarang, fn($q) => $q->where('h.nama_barang', $namaBarang))
-            ->orderBy('h.tanggal', 'desc')
-            ->limit(150)
+            ->orderBy('h.tanggal', 'asc')
             ->select('h.nama_barang', 'h.harga_hari_ini', 'h.tanggal', 'pasars.nama_pasar')
             ->get();
 
-        return response()->json($data);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json($data);
+        }
+
+        // Ambil semua komoditas unik untuk kategori ini agar bisa dipilih di dropdown
+        $komoditasList = DB::table('harga_harians')
+            ->where('status', 'published')
+            ->where('kategori', $kategori)
+            ->distinct()
+            ->pluck('nama_barang');
+
+        // Jika tidak ada barang yang dipilih, ambil barang pertama dari list
+        if (!$namaBarang && $komoditasList->isNotEmpty()) {
+            $namaBarang = $komoditasList->first();
+            // Re-fetch data dengan barang default ini
+            $data = DB::table('harga_harians as h')
+                ->join('pasars', 'h.pasar_id', '=', 'pasars.id')
+                ->where('h.status', 'published')
+                ->where('h.kategori', $kategori)
+                ->where('h.nama_barang', $namaBarang)
+                ->orderBy('h.tanggal', 'asc')
+                ->select('h.nama_barang', 'h.harga_hari_ini', 'h.tanggal', 'pasars.nama_pasar')
+                ->get();
+        }
+
+        return view('admin.rekomendasi.komparasi', compact('data', 'komoditasList', 'namaBarang', 'kategori'));
     }
 }

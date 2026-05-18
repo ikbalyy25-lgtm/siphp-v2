@@ -19,7 +19,7 @@ class User extends Authenticatable
     protected $hidden   = ['password', 'remember_token'];
 
     // ── Helper role check ──
-    public function isAdminMaster(): bool   { return $this->role === 'admin_master'; }
+    public function isAdminMaster(): bool   { return $this->role === 'admin_master' || $this->role === 'admin'; }
     public function isKepalaDinas(): bool   { return $this->role === 'kepala_dinas'; }
     public function isAdminPasar(): bool    { return $this->role === 'admin_pasar'; }
 

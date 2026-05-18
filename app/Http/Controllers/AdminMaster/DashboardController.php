@@ -36,9 +36,27 @@ class DashboardController extends Controller
         }
 
         // Stat
-        $totalHarga     = $data_harga->count();
-        $totalPublished = $data_harga->where('status', 'published')->count();
-        $totalPending   = $data_harga->where('status', 'pending')->count();
+        $totalHarga     = 0;
+        $totalPublished = 0;
+        $totalPending   = 0;
+
+        if ($pasar_aktif) {
+            $today = date('Y-m-d');
+            $totalHarga = DB::table('harga_harians')
+                ->where('pasar_id', $pasar_aktif->id)
+                ->where('tanggal', $today)
+                ->count();
+            $totalPublished = DB::table('harga_harians')
+                ->where('pasar_id', $pasar_aktif->id)
+                ->where('tanggal', $today)
+                ->where('status', 'published')
+                ->count();
+            $totalPending = DB::table('harga_harians')
+                ->where('pasar_id', $pasar_aktif->id)
+                ->where('tanggal', $today)
+                ->where('status', 'pending')
+                ->count();
+        }
 
         // Rekomendasi harga optimal (ringkasan untuk dashboard)
         $rekomendasi_harga = DB::table('harga_harians')

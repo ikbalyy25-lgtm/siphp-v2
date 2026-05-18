@@ -17,6 +17,7 @@
         .stat-mini { background:white;border:1.5px solid var(--border);border-radius:14px;padding:16px 20px;text-align:center; }
         .btn-chart { border:1.5px solid var(--border);background:white;color:var(--sub);border-radius:9px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s; }
         .btn-chart.active,.btn-chart:hover { background:var(--gd);color:white;border-color:var(--gd); }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -131,7 +132,7 @@
     </div>
 </div>
 
-@keyframes spin { to { transform: rotate(360deg); } }
+
 
 <script>
 let myChart, currentType = 'line', chartData = null;
@@ -147,7 +148,11 @@ async function loadChartData() {
     document.getElementById('noData').style.display = 'none';
 
     try {
-        const url = `/admin/statistik/api/data-harga/{{ $pasar->id }}/{{ $kategori }}/${encodeURIComponent(barang)}?bulan=${bulan}&tahun=${tahun}`;
+        @if(auth()->user()->role === 'admin_master')
+        const url = `/admin/statistik/api/{{ $pasar->id }}/{{ $kategori }}/${encodeURIComponent(barang)}?bulan=${bulan}&tahun=${tahun}`;
+        @else
+        const url = `/admin-pasar/statistik/api/{{ $kategori }}/${encodeURIComponent(barang)}?bulan=${bulan}&tahun=${tahun}`;
+        @endif
         const res  = await fetch(url);
         const data = await res.json();
         document.getElementById('labelBulan').textContent = data.bulan_nama || '';

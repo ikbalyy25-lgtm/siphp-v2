@@ -17,7 +17,7 @@ class PublicHargaServices
         // Logika: Ambil harga yang statusnya 'publish' atau 'update'
         return HargaHarian::where('pasar_id', $pasarId)
             ->where('kategori', $kategori)
-            ->whereIn('status', ['publish', 'update'])
+            ->where('status', 'published')
             ->orderBy('tanggal', 'desc')
             ->get();
     }
