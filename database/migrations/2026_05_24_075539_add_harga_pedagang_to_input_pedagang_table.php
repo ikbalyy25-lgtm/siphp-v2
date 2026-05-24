@@ -13,14 +13,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('input_pedagang', function (Blueprint $table) {
-            // Tambahkan kolom harga_pedagang (JSON)
-            $table->json('harga_pedagang')->nullable()->after('tanggal');
+            // Tambahkan kolom harga_pedagang (JSON) jika belum ada
+            if (!Schema::hasColumn('input_pedagang', 'harga_pedagang')) {
+                $table->json('harga_pedagang')->nullable()->after('tanggal');
+            }
             
             // Ubah harga_pedagang_1, 2, 3 menjadi nullable untuk backward compatibility
             // jika ada input yang pedagangnya kurang dari 3
-            $table->decimal('harga_pedagang_1', 15, 0)->nullable()->change();
-            $table->decimal('harga_pedagang_2', 15, 0)->nullable()->change();
-            $table->decimal('harga_pedagang_3', 15, 0)->nullable()->change();
+            if (Schema::hasColumn('input_pedagang', 'harga_pedagang_1')) {
+                $table->decimal('harga_pedagang_1', 15, 0)->nullable()->change();
+                $table->decimal('harga_pedagang_2', 15, 0)->nullable()->change();
+                $table->decimal('harga_pedagang_3', 15, 0)->nullable()->change();
+            }
         });
 
         // Migrate existing data to json (optional but good for consistency)

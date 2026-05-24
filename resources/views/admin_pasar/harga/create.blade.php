@@ -112,6 +112,16 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Satuan (Kg, Liter, Bks, dll)</label>
+                    <input type="text" name="satuan" list="satuan_list" required value="{{ old('satuan') }}" placeholder="Contoh: Kg, L, Ikat..." style="text-transform: capitalize;">
+                    <datalist id="satuan_list">
+                        @foreach($daftarSatuan as $sat)
+                        <option value="{{ $sat }}"></option>
+                        @endforeach
+                    </datalist>
+                </div>
+
+                <div class="form-group">
                     <label>Tanggal Pencatatan</label>
                     <input type="date" name="tanggal" value="{{ old('tanggal', date('Y-m-d')) }}" max="{{ date('Y-m-d') }}" required>
                 </div>

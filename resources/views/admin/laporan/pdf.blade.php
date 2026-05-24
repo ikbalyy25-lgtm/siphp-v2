@@ -22,7 +22,6 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 30px;
-            table-layout: fixed;
         }
 
         table,
@@ -36,11 +35,12 @@
             background-color: #0088CC;
             color: white;
             padding: 8px;
+            text-align: center;
         }
 
         td {
             padding: 6px;
-            text-align: left;
+            text-align: center;
         }
 
         .pasar-title {
@@ -65,14 +65,29 @@
     @foreach ($laporan as $nama_pasar => $items)
         <div class="pasar-title">Lokasi: {{ $nama_pasar }}</div>
 
+        @php
+            $maxPedagang = 1;
+            foreach ($items as $item) {
+                if (isset($item->harga_pedagang) && $item->harga_pedagang) {
+                    $arr = json_decode($item->harga_pedagang, true);
+                    if (is_array($arr) && count($arr) > $maxPedagang) {
+                        $maxPedagang = count($arr);
+                    }
+                }
+            }
+        @endphp
+
         <table>
             <thead>
                 <tr>
-                    <th style="width: 12%;">Tanggal</th>
-                    <th style="width: 13%;">Kategori</th>
-                    <th style="width: 25%;">Nama Barang</th>
-                    <th style="text-align: right; width: 37.5%;">Harga Pedagang</th>
-                    <th style="text-align: right; width: 12.5%;">Rata-Rata</th>
+                    <th style="width: 10%;">Tanggal</th>
+                    <th style="width: 10%;">Kategori</th>
+                    <th style="width: 20%;">Nama Barang</th>
+                    <th style="width: 8%;">Satuan</th>
+                    @for ($i = 1; $i <= $maxPedagang; $i++)
+                        <th>Pedagang {{ $i }}</th>
+                    @endfor
+                    <th>Rata-Rata</th>
                 </tr>
             </thead>
             <tbody>
@@ -81,23 +96,28 @@
                         <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                         <td>{{ ucfirst($item->kategori) }}</td>
                         <td>{{ $item->nama_barang }}</td>
+                        <td>{{ $item->satuan ?? '-' }}</td>
                         @php
-                            $hargaPedagangText = '-';
+                            $hargaArray = [];
                             if (isset($item->harga_pedagang) && $item->harga_pedagang) {
-                                $array = json_decode($item->harga_pedagang, true);
-                                if (is_array($array)) {
-                                    $hargaPedagangText = implode(', ', array_map(function($v) { return number_format($v, 0, ',', '.'); }, $array));
+                                $arr = json_decode($item->harga_pedagang, true);
+                                if (is_array($arr)) {
+                                    $hargaArray = $arr;
                                 }
-                            } else {
-                                $arr = [];
-                                if (isset($item->harga_pedagang_1) && $item->harga_pedagang_1) $arr[] = number_format($item->harga_pedagang_1, 0, ',', '.');
-                                if (isset($item->harga_pedagang_2) && $item->harga_pedagang_2) $arr[] = number_format($item->harga_pedagang_2, 0, ',', '.');
-                                if (isset($item->harga_pedagang_3) && $item->harga_pedagang_3) $arr[] = number_format($item->harga_pedagang_3, 0, ',', '.');
-                                if (count($arr) > 0) $hargaPedagangText = implode(', ', $arr);
                             }
                         @endphp
-                        <td style="text-align: right">{{ $hargaPedagangText }}</td>
-                        <td style="text-align: right">{{ number_format($item->harga_hari_ini ?? 0, 0, ',', '.') }}</td>
+                        
+                        @for ($i = 0; $i < $maxPedagang; $i++)
+                            <td>
+                                @if (isset($hargaArray[$i]))
+                                    Rp {{ number_format($hargaArray[$i], 0, ',', '.') }}
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        @endfor
+                        
+                        <td style="white-space: nowrap;">Rp {{ number_format($item->harga_hari_ini ?? 0, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>

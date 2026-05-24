@@ -39,7 +39,6 @@ class HargaController extends Controller
         return view('admin_pasar.harga.index', compact('pasar', 'kategori', 'inputs'));
     }
 
-    // Form input 3 harga
     public function create(string $kategori)
     {
         $pasar = $this->getPasar();
@@ -56,8 +55,19 @@ class HargaController extends Controller
 
         $daftarBarang = array_merge($daftarBarangDefault, $daftarBarangCustom);
         sort($daftarBarang);
+        
+        $daftarSatuan = InputPedagang::whereNotNull('satuan')
+            ->where('satuan', '!=', '-')
+            ->distinct()
+            ->pluck('satuan')
+            ->toArray();
+            
+        // Default suggestions if empty
+        if (empty($daftarSatuan)) {
+            $daftarSatuan = ['Kg', 'Liter', 'Bks', 'Ikat', 'Ekor', 'Ons', 'Gram', 'Lusin'];
+        }
 
-        return view('admin_pasar.harga.create', compact('pasar', 'kategori', 'daftarBarang'));
+        return view('admin_pasar.harga.create', compact('pasar', 'kategori', 'daftarBarang', 'daftarSatuan'));
     }
 
     // Simpan + hitung rata-rata + kirim ke antrian admin master
@@ -66,6 +76,7 @@ class HargaController extends Controller
         $request->validate([
             'nama_barang'      => 'required|string',
             'nama_barang_baru' => 'nullable|required_if:nama_barang,__baru__|string|max:255',
+            'satuan'           => 'required|string|max:50',
             'tanggal'          => 'required|date|before_or_equal:today',
             'harga_pedagang'   => 'required|array|min:1',
             'harga_pedagang.*' => 'required|numeric|min:1',
@@ -75,6 +86,7 @@ class HargaController extends Controller
             'harga_pedagang.*.required' => 'Harga pedagang wajib diisi',
             'tanggal.before_or_equal'   => 'Tanggal tidak boleh lebih dari hari ini',
             'nama_barang_baru.required_if' => 'Nama komoditas baru wajib diisi',
+            'satuan.required'           => 'Satuan wajib diisi',
         ]);
 
         $pasar   = $this->getPasar();
@@ -94,6 +106,7 @@ class HargaController extends Controller
                 'user_id'          => $user->id,
                 'kategori'         => $request->kategori,
                 'nama_barang'      => $namaBarang,
+                'satuan'           => $request->satuan,
                 'tanggal'          => $request->tanggal,
                 'harga_pedagang'   => $request->harga_pedagang,
                 // harga_pedagang_1, 2, 3 dan rata_rata otomatis diisi via boot method di Model
@@ -106,6 +119,7 @@ class HargaController extends Controller
                 'input_pedagang_id' => $input->id,
                 'kategori'          => $request->kategori,
                 'nama_barang'       => $namaBarang,
+                'satuan'            => $request->satuan,
                 'tanggal'           => $request->tanggal,
                 'harga_hari_ini'    => $rataRata,
                 'status'            => 'pending',

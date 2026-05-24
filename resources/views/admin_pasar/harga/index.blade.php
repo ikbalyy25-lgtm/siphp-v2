@@ -89,7 +89,9 @@
         <div class="row data-row" data-nama="{{ strtolower($inp->nama_barang) }}" data-status="{{ $inp->status }}">
             <div>
                 <div style="font-weight:700;color:var(--text);">{{ $inp->nama_barang }}</div>
-                <div style="font-size:11px;color:var(--sub);margin-top:1px;">{{ ucfirst($inp->kategori) }}</div>
+                <div style="font-size:11px;color:var(--sub);margin-top:1px;">
+                    {{ ucfirst($inp->kategori) }} @if($inp->satuan && $inp->satuan !== '-') • {{ $inp->satuan }} @endif
+                </div>
             </div>
             <div style="text-align:center;">
                 <span style="background:#f0faf4;color:var(--sub);border:1px solid var(--border);border-radius:7px;padding:3px 8px;font-size:11px;font-weight:600;white-space:nowrap;">

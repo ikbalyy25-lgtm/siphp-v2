@@ -99,25 +99,27 @@
                     </div>
                 </div>
 
-                {{-- Pasar --}}
-                <div style="margin-bottom:18px;">
-                    <label class="form-label">Pasar</label>
-                    <select name="pasar_id" class="inp">
-                        <option value="">Semua Pasar</option>
-                        @foreach($pasars as $p)
-                        <option value="{{ $p->id }}">{{ $p->nama_pasar }}</option>
-                        @endforeach
-                    </select>
-                </div>
+
 
                 {{-- Kategori --}}
-                <div style="margin-bottom:28px;">
+                <div style="margin-bottom:18px;">
                     <label class="form-label">Kategori Barang</label>
                     <select name="kategori" class="inp">
                         <option value="semua">Semua Kategori</option>
                         <option value="pokok">Barang Pokok</option>
                         <option value="subsidi">Barang Subsidi</option>
                         <option value="penting">Barang Penting</option>
+                    </select>
+                </div>
+
+                {{-- Pasar --}}
+                <div style="margin-bottom:28px;">
+                    <label class="form-label">Pasar</label>
+                    <select name="pasar_id" class="inp">
+                        <option value="">Semua Pasar</option>
+                        @foreach($pasars as $p)
+                        <option value="{{ $p->id }}">{{ $p->nama_pasar }}</option>
+                        @endforeach
                     </select>
                 </div>
 

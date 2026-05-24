@@ -500,19 +500,26 @@
         </div>
 
         <div style="border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(45,106,79,0.08);border:1.5px solid var(--border);">
-            <div class="tbl-head" style="grid-template-columns:2fr 1fr 1.5fr 1fr;">
+            <div class="tbl-head" style="grid-template-columns:2fr 1fr 1fr 1fr 1.5fr 1fr; text-align:center;">
                 <div>Nama Barang</div>
+                <div>Satuan</div>
+                <div>Kategori</div>
                 <div>Tanggal</div>
-                <div>Harga Rata-rata</div>
-                <div style="text-align:center;">Status</div>
+                <div>Harga Rata-Rata</div>
+                <div>Status</div>
             </div>
 
             <div id="tabelBody">
             @forelse($data_harga as $h)
-            <div class="tbl-row harga-row" data-nama="{{ strtolower($h->nama_barang) }}" style="grid-template-columns:2fr 1fr 1.5fr 1fr;">
-                <div>
-                    <div style="font-weight:700;color:var(--text);">{{ $h->nama_barang }}</div>
-                    <div style="font-size:11px;color:var(--sub);margin-top:2px;">{{ ucfirst($h->kategori) }}</div>
+            <div class="tbl-row harga-row" data-nama="{{ strtolower($h->nama_barang) }}" style="grid-template-columns:2fr 1fr 1fr 1fr 1.5fr 1fr; text-align:center; align-items:center;">
+                <div style="font-weight:700;color:var(--text);">
+                    {{ $h->nama_barang }}
+                </div>
+                <div style="color:var(--sub);font-size:12px;font-weight:500;">
+                    {{ $h->satuan && $h->satuan !== '-' ? $h->satuan : '-' }}
+                </div>
+                <div style="color:var(--sub);font-size:12px;">
+                    {{ ucfirst($h->kategori) }}
                 </div>
                 <div style="color:var(--sub);font-size:12px;">
                     {{ \Carbon\Carbon::parse($h->tanggal)->format('d M Y') }}
@@ -520,7 +527,7 @@
                 <div style="font-weight:700;color:var(--gd);font-size:14px;">
                     Rp {{ number_format($h->harga_hari_ini, 0, ',', '.') }}
                 </div>
-                <div style="text-align:center;">
+                <div>
                     @if($h->status === 'published')
                     <span style="background:#dcfce7;color:#16a34a;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">
                         <i class="fas fa-check"></i> Published
@@ -582,7 +589,7 @@
                         <i class="fas fa-store" style="font-size:9px;"></i> {{ $opt->jumlah_pasar_terdata }} pasar
                     </span>
                 </div>
-                <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:10px;">{{ $opt->nama_barang }}</div>
+                <div style="font-weight:700;font-size:14px;color:var(--text);margin-bottom:10px;">{{ $opt->nama_barang }} @if($opt->satuan && $opt->satuan !== '-') <span style="font-weight:500; font-size:12px; color:var(--sub);">/ {{ $opt->satuan }}</span> @endif</div>
                 <div style="background:linear-gradient(135deg,#f0faf4,#e0f5e8);border-radius:12px;padding:12px;text-align:center;margin-bottom:10px;">
                     <div style="font-size:10px;color:var(--sub);font-weight:600;margin-bottom:4px;">HARGA OPTIMAL</div>
                     <div style="font-size:20px;font-weight:800;color:var(--gd);">Rp {{ number_format($opt->harga_optimal, 0, ',', '.') }}</div>
@@ -650,17 +657,28 @@
 
             @php
                 $komparasiData = \Illuminate\Support\Facades\DB::table('harga_harians')
+                    ->join(\Illuminate\Support\Facades\DB::raw('(SELECT pasar_id, nama_barang, satuan, MAX(tanggal) as max_tgl FROM harga_harians WHERE status="published" GROUP BY pasar_id, nama_barang, satuan) as latest'), function($join) {
+                        $join->on('harga_harians.pasar_id', '=', 'latest.pasar_id')
+                             ->on('harga_harians.nama_barang', '=', 'latest.nama_barang')
+                             ->on('harga_harians.satuan', '=', 'latest.satuan')
+                             ->on('harga_harians.tanggal', '=', 'latest.max_tgl');
+                    })
                     ->where('status','published')
-                    ->orderBy('nama_barang')
+                    ->orderBy('harga_harians.nama_barang')
                     ->get()
-                    ->groupBy('nama_barang');
+                    ->groupBy(function($item) { return $item->nama_barang . '|' . $item->satuan; });
             @endphp
 
-            @forelse($komparasiData->take(20) as $namaBarang => $rows)
-            @php $byPasar = $rows->keyBy('pasar_id'); @endphp
+            @forelse($komparasiData->take(20) as $groupKey => $rows)
+            @php 
+                $byPasar = $rows->keyBy('pasar_id');
+                $parts = explode('|', $groupKey);
+                $namaBarang = $parts[0];
+                $sat = $parts[1] ?? '-';
+            @endphp
             <div style="display:grid;grid-template-columns:2fr repeat({{ count($semua_pasar) }},1fr);padding:12px 20px;border-bottom:1px solid #e8f5ee;background:white;align-items:center;transition:background 0.15s;"
                 onmouseover="this.style.background='#f5fdf7'" onmouseout="this.style.background='white'">
-                <div style="font-weight:600;color:var(--text);font-size:13px;">{{ $namaBarang }}</div>
+                <div style="font-weight:600;color:var(--text);font-size:13px;">{{ $namaBarang }} @if($sat && $sat !== '-') <span style="font-size:11px;color:var(--sub);font-weight:400;">/ {{ $sat }}</span> @endif</div>
                 @foreach($semua_pasar as $p)
                 @php
                     $row = $byPasar[$p->id] ?? null;
@@ -739,6 +757,15 @@
                     <option value="pokok">Barang Pokok</option>
                     <option value="subsidi">Barang Subsidi</option>
                     <option value="penting">Barang Penting</option>
+                </select>
+            </div>
+            <div style="margin-bottom:24px;">
+                <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--sub);display:block;margin-bottom:6px;">Pasar</label>
+                <select name="pasar_id" class="form-inp">
+                    <option value="">Semua Pasar</option>
+                    @foreach($semua_pasar as $p)
+                    <option value="{{ $p->id }}">{{ $p->nama_pasar }}</option>
+                    @endforeach
                 </select>
             </div>
             <div style="display:flex;gap:10px;justify-content:flex-end;">

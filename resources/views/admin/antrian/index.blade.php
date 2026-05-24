@@ -94,7 +94,7 @@
         @php $inp = $item->inputPedagang; @endphp
         <div class="row">
             <div>
-                <div style="font-weight:600;color:#1a3a2a;">{{ $item->nama_barang }}</div>
+                <div style="font-weight:600;color:#1a3a2a;">{{ $item->nama_barang }} @if($item->satuan && $item->satuan !== '-') <span style="font-size:11px; color:var(--sub);">• {{ $item->satuan }}</span> @endif</div>
                 <div style="font-size:11px;color:var(--sub);">{{ $item->tanggal->format('d M Y') }} · oleh {{ $inp?->user?->name ?? 'admin' }}</div>
             </div>
             <div><span style="background:#f0faf4;color:var(--gd);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($item->kategori) }}</span></div>

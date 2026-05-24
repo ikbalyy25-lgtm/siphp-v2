@@ -10,7 +10,7 @@ class HargaHarian extends Model
 
     protected $fillable = [
         'pasar_id', 'input_pedagang_id', 'kategori',
-        'nama_barang', 'tanggal', 'harga_hari_ini', 'status',
+        'nama_barang', 'satuan', 'tanggal', 'harga_hari_ini', 'status',
     ];
 
     protected $casts = [

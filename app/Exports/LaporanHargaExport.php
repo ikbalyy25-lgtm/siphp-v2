@@ -32,10 +32,7 @@ class LaporanHargaExport implements FromCollection, WithHeadings, WithMapping, S
             ->select(
                 'pasars.nama_pasar',
                 'harga_harians.*',
-                'input_pedagang.harga_pedagang',
-                'input_pedagang.harga_pedagang_1',
-                'input_pedagang.harga_pedagang_2',
-                'input_pedagang.harga_pedagang_3'
+                'input_pedagang.harga_pedagang'
             )
             ->selectSub(function($q) {
                 $q->from('harga_harians as h2')
@@ -72,6 +69,7 @@ class LaporanHargaExport implements FromCollection, WithHeadings, WithMapping, S
             'Tanggal Input',
             'Kategori',
             'Nama Barang',
+            'Satuan',
             'Harga Pedagang (Rp)',
             'Harga Rata-Rata (Rp)',
         ];
@@ -85,13 +83,6 @@ class LaporanHargaExport implements FromCollection, WithHeadings, WithMapping, S
             if (is_array($array)) {
                 $hargaPedagangText = implode(', ', $array);
             }
-        } else {
-            // Fallback to legacy
-            $arr = [];
-            if ($row->harga_pedagang_1) $arr[] = $row->harga_pedagang_1;
-            if ($row->harga_pedagang_2) $arr[] = $row->harga_pedagang_2;
-            if ($row->harga_pedagang_3) $arr[] = $row->harga_pedagang_3;
-            if (count($arr) > 0) $hargaPedagangText = implode(', ', $arr);
         }
 
         return [
@@ -99,6 +90,7 @@ class LaporanHargaExport implements FromCollection, WithHeadings, WithMapping, S
             $row->tanggal,
             ucfirst($row->kategori),
             $row->nama_barang,
+            $row->satuan ?? '-',
             $hargaPedagangText,
             $row->harga_hari_ini ?? 0,
         ];

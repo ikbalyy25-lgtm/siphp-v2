@@ -27,13 +27,14 @@ class RekomendasiController extends Controller
         // Ambil harga terbaru per komoditas per pasar (published saja)
         $hargaTerbaru = DB::table('harga_harians as h')
             ->join(
-                DB::raw('(SELECT pasar_id, nama_barang, MAX(tanggal) as max_tgl
+                DB::raw('(SELECT pasar_id, nama_barang, satuan, MAX(tanggal) as max_tgl
                           FROM harga_harians
                           WHERE status = "published"
-                          GROUP BY pasar_id, nama_barang) as latest'),
+                          GROUP BY pasar_id, nama_barang, satuan) as latest'),
                 function ($join) {
                     $join->on('h.pasar_id', '=', 'latest.pasar_id')
                          ->on('h.nama_barang', '=', 'latest.nama_barang')
+                         ->on('h.satuan', '=', 'latest.satuan')
                          ->on('h.tanggal', '=', 'latest.max_tgl');
                 }
             )
@@ -43,6 +44,7 @@ class RekomendasiController extends Controller
             ->select(
                 'h.nama_barang',
                 'h.kategori',
+                'h.satuan',
                 'h.harga_hari_ini',
                 'h.tanggal',
                 'pasars.id as pasar_id',
@@ -53,8 +55,15 @@ class RekomendasiController extends Controller
 
         // Kelompokkan per komoditas dan hitung statistik
         $rekomendasi = $hargaTerbaru
-            ->groupBy('nama_barang')
+            ->groupBy(function($item) {
+                return $item->nama_barang . '|' . $item->satuan;
+            })
             ->map(function ($items, $namaBarang) {
+                // Parse namaBarang to remove the suffix
+                $parts = explode('|', $namaBarang);
+                $cleanNamaBarang = $parts[0] ?? $namaBarang;
+                $satuan = $parts[1] ?? '-';
+                
                 $hargaList = $items->pluck('harga_hari_ini');
                 $rataRata  = round($hargaList->avg());
                 $minimum   = $hargaList->min();
@@ -92,7 +101,8 @@ class RekomendasiController extends Controller
                 })->values();
 
                 return [
-                    'nama_barang'   => $namaBarang,
+                    'nama_barang'   => $cleanNamaBarang,
+                    'satuan'        => $satuan,
                     'harga_optimal' => $hargaOptimal,
                     'rata_rata'     => $rataRata,
                     'harga_min'     => $minimum,

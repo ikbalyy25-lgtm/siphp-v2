@@ -63,13 +63,14 @@ class DashboardController extends Controller
             ->select(
                 'nama_barang',
                 'kategori',
+                'satuan',
                 DB::raw('ROUND(AVG(harga_hari_ini)) as harga_optimal'),
                 DB::raw('MIN(harga_hari_ini)        as harga_terendah'),
                 DB::raw('MAX(harga_hari_ini)        as harga_tertinggi'),
                 DB::raw('COUNT(DISTINCT pasar_id)   as jumlah_pasar_terdata')
             )
             ->where('status', 'published')
-            ->groupBy('nama_barang', 'kategori')
+            ->groupBy('nama_barang', 'kategori', 'satuan')
             ->orderBy('kategori')
             ->orderBy('nama_barang')
             ->get();

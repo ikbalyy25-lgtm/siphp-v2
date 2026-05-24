@@ -161,7 +161,7 @@
         <div class="rekomen-header" onclick="toggleDetail({{ $i }})">
             <div>
                 <div style="display:flex;align-items:center;gap:8px;">
-                    <span style="font-size:14px;font-weight:700;color:#1a3a2a;">{{ $item['nama_barang'] }}</span>
+                    <span style="font-size:14px;font-weight:700;color:#1a3a2a;">{{ $item['nama_barang'] }} @if($item['satuan'] && $item['satuan'] !== '-') <span style="font-weight:500; font-size:12px; color:var(--sub);">/ {{ $item['satuan'] }}</span> @endif</span>
                     @if($item['perlu_perhatian'])
                     <span class="perhatian-badge"><i class="fas fa-exclamation-triangle"></i> Disparitas Tinggi</span>
                     @endif
