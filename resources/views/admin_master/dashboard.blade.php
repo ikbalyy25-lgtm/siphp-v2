@@ -372,12 +372,6 @@
     </div>
     @endif
 
-    @if(session('error'))
-    <div class="alert-success" style="background:#fef2f2; border-color:#fecaca; border-left-color:#dc2626; color:#b91c1c;">
-        <i class="fas fa-exclamation-circle" style="margin-right:8px;"></i>{{ session('error') }}
-    </div>
-    @endif
-
     {{-- PANEL: DASHBOARD (default) --}}
     <div id="panelDashboard">
 

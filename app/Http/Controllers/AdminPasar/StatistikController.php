@@ -47,6 +47,19 @@ class StatistikController extends Controller
             ->orderBy('tanggal')
             ->get(['tanggal', 'harga_hari_ini']);
 
-        return response()->json($data);
+        $labels = [];
+        $prices = [];
+        foreach ($data as $item) {
+            $labels[] = \Carbon\Carbon::parse($item->tanggal)->format('d M');
+            $prices[] = (float) $item->harga_hari_ini;
+        }
+
+        $bulan_nama = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F Y');
+
+        return response()->json([
+            'labels' => $labels,
+            'prices' => $prices,
+            'bulan_nama' => $bulan_nama
+        ]);
     }
 }

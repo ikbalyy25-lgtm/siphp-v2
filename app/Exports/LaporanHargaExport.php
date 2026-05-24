@@ -28,7 +28,14 @@ class LaporanHargaExport implements FromCollection, WithHeadings, WithMapping, S
     {
         $query = DB::table('harga_harians')
             ->join('pasars', 'harga_harians.pasar_id', '=', 'pasars.id')
-            ->select('pasars.nama_pasar', 'harga_harians.*')
+            ->leftJoin('input_pedagang', 'harga_harians.input_pedagang_id', '=', 'input_pedagang.id')
+            ->select(
+                'pasars.nama_pasar',
+                'harga_harians.*',
+                'input_pedagang.harga_pedagang_1',
+                'input_pedagang.harga_pedagang_2',
+                'input_pedagang.harga_pedagang_3'
+            )
             ->selectSub(function($q) {
                 $q->from('harga_harians as h2')
                   ->select('h2.harga_hari_ini')
@@ -41,7 +48,7 @@ class LaporanHargaExport implements FromCollection, WithHeadings, WithMapping, S
             }, 'harga_kemarin')
             ->whereMonth('harga_harians.tanggal', $this->bulan)
             ->whereYear('harga_harians.tanggal', $this->tahun)
-            ->where('status', 'published');
+            ->where('harga_harians.status', 'published');
 
         // <--- LOGIKA FILTER KATEGORI --->
         if ($this->kategori != 'semua') {
@@ -61,11 +68,13 @@ class LaporanHargaExport implements FromCollection, WithHeadings, WithMapping, S
     {
         return [
             'Nama Pasar',
+            'Tanggal Input',
             'Kategori',
             'Nama Barang',
-            'Tanggal Input',
-            'Harga Kemarin',
-            'Harga Hari Ini',
+            'Pedagang 1 (Rp)',
+            'Pedagang 2 (Rp)',
+            'Pedagang 3 (Rp)',
+            'Harga Rata-Rata (Rp)',
         ];
     }
 
@@ -73,11 +82,13 @@ class LaporanHargaExport implements FromCollection, WithHeadings, WithMapping, S
     {
         return [
             $row->nama_pasar,
+            $row->tanggal,
             ucfirst($row->kategori),
             $row->nama_barang,
-            $row->tanggal,
-            $row->harga_kemarin ?? 0,
-            $row->harga_hari_ini,
+            $row->harga_pedagang_1 ?? 0,
+            $row->harga_pedagang_2 ?? 0,
+            $row->harga_pedagang_3 ?? 0,
+            $row->harga_hari_ini ?? 0,
         ];
     }
 }

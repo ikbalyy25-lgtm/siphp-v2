@@ -25,7 +25,14 @@ class LaporanController extends Controller
         if ($tipe === 'pdf') {
             $query = \Illuminate\Support\Facades\DB::table('harga_harians')
                 ->join('pasars', 'harga_harians.pasar_id', '=', 'pasars.id')
-                ->select('pasars.nama_pasar', 'harga_harians.*')
+                ->leftJoin('input_pedagang', 'harga_harians.input_pedagang_id', '=', 'input_pedagang.id')
+                ->select(
+                    'pasars.nama_pasar',
+                    'harga_harians.*',
+                    'input_pedagang.harga_pedagang_1',
+                    'input_pedagang.harga_pedagang_2',
+                    'input_pedagang.harga_pedagang_3'
+                )
                 ->selectSub(function($q) {
                     $q->from('harga_harians as h2')
                       ->select('h2.harga_hari_ini')
@@ -38,7 +45,7 @@ class LaporanController extends Controller
                 }, 'harga_kemarin')
                 ->whereMonth('harga_harians.tanggal', $bulan)
                 ->whereYear('harga_harians.tanggal', $tahun)
-                ->where('status', 'published');
+                ->where('harga_harians.status', 'published');
 
             if ($kategori !== 'semua') {
                 $query->where('harga_harians.kategori', $kategori);

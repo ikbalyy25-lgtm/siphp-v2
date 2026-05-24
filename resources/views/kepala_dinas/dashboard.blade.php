@@ -142,41 +142,6 @@
         </a>
     </div>
 
-    {{-- Rekomendasi Ringkasan --}}
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-        <h2 style="font-size:16px;font-weight:800;color:var(--text);">Rekomendasi Harga Terkini</h2>
-        <a href="{{ route('kepala_dinas.rekomendasi') }}" style="font-size:12px;color:var(--gd);font-weight:700;text-decoration:none;">
-            Lihat Semua <i class="fas fa-arrow-right" style="font-size:10px;"></i>
-        </a>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
-        @forelse($rekomendasi as $opt)
-        <div class="rek-card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                <span style="font-size:10px;font-weight:800;text-transform:uppercase;color:var(--gd);background:var(--g);padding:2px 8px;border-radius:999px;">
-                    {{ $opt->kategori }}
-                </span>
-                <span style="font-size:10px;color:var(--sub);">
-                    <i class="fas fa-store" style="font-size:9px;"></i> {{ $opt->jumlah_pasar }}
-                </span>
-            </div>
-            <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:8px;">{{ $opt->nama_barang }}</div>
-            <div style="background:#f0faf4;border-radius:10px;padding:10px;text-align:center;margin-bottom:8px;">
-                <div style="font-size:9px;color:var(--sub);font-weight:600;margin-bottom:2px;">OPTIMAL</div>
-                <div style="font-size:17px;font-weight:800;color:var(--gd);">Rp {{ number_format($opt->harga_optimal,0,',','.') }}</div>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;">
-                <span style="color:#16a34a;font-weight:700;">↓ Rp {{ number_format($opt->harga_terendah,0,',','.') }}</span>
-                <span style="color:#dc2626;font-weight:700;">↑ Rp {{ number_format($opt->harga_tertinggi,0,',','.') }}</span>
-            </div>
-        </div>
-        @empty
-        <div style="grid-column:1/-1;padding:40px;text-align:center;background:white;border-radius:14px;border:1.5px dashed var(--border);">
-            <i class="fas fa-lightbulb" style="font-size:2rem;color:#c6ebd4;display:block;margin-bottom:10px;"></i>
-            <p style="color:var(--sub);">Belum ada data rekomendasi.</p>
-        </div>
-        @endforelse
-    </div>
 </main>
 </body>
 </html>

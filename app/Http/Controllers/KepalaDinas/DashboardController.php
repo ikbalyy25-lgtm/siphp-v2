@@ -22,46 +22,12 @@ class DashboardController extends Controller
         $totalHarga   = DB::table('harga_harians')->where('status', 'published')->count();
         $updateHariIni = DB::table('harga_harians')->where('tanggal', date('Y-m-d'))->count();
 
-        // Rekomendasi harga terbaru (ringkasan)
-        $rekomendasi = DB::table('harga_harians')
-            ->select(
-                'nama_barang', 'kategori',
-                DB::raw('ROUND(AVG(harga_hari_ini)) as harga_optimal'),
-                DB::raw('MIN(harga_hari_ini) as harga_terendah'),
-                DB::raw('MAX(harga_hari_ini) as harga_tertinggi'),
-                DB::raw('COUNT(DISTINCT pasar_id) as jumlah_pasar')
-            )
-            ->where('status', 'published')
-            ->groupBy('nama_barang', 'kategori')
-            ->orderBy('kategori')
-            ->orderBy('nama_barang')
-            ->limit(12)
-            ->get();
-
         return view('kepala_dinas.dashboard', compact(
-            'user', 'totalBarang', 'totalPasar', 'totalHarga', 'updateHariIni', 'rekomendasi'
+            'user', 'totalBarang', 'totalPasar', 'totalHarga', 'updateHariIni'
         ));
     }
 
-    public function rekomendasi()
-    {
-        $user = Auth::user();
-        $rekomendasi = DB::table('harga_harians')
-            ->select(
-                'nama_barang', 'kategori',
-                DB::raw('ROUND(AVG(harga_hari_ini)) as harga_optimal'),
-                DB::raw('MIN(harga_hari_ini) as harga_terendah'),
-                DB::raw('MAX(harga_hari_ini) as harga_tertinggi'),
-                DB::raw('COUNT(DISTINCT pasar_id) as jumlah_pasar')
-            )
-            ->where('status', 'published')
-            ->groupBy('nama_barang', 'kategori')
-            ->orderBy('kategori')
-            ->orderBy('nama_barang')
-            ->get();
 
-        return view('kepala_dinas.rekomendasi', compact('user', 'rekomendasi'));
-    }
 
     public function laporan()
     {

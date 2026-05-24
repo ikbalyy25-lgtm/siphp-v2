@@ -17,7 +17,14 @@ class HargaController extends Controller
     private function getPasarAktif()
     {
         $id = Session::get('pasar_aktif_id');
-        if (!$id) return null;
+        if (!$id) {
+            $firstPasar = DB::table('pasars')->orderBy('nama_pasar')->first();
+            if ($firstPasar) {
+                Session::put('pasar_aktif_id', $firstPasar->id);
+                return $firstPasar;
+            }
+            return null;
+        }
         return DB::table('pasars')->where('id', $id)->first();
     }
 

@@ -68,13 +68,11 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width: 12%;">Tanggal</th>
-                    <th style="width: 13%;">Kategori</th>
-                    <th style="width: 25%;">Nama Barang</th>
-                    <th style="text-align: right; width: 12.5%;">Pedagang 1</th>
-                    <th style="text-align: right; width: 12.5%;">Pedagang 2</th>
-                    <th style="text-align: right; width: 12.5%;">Pedagang 3</th>
-                    <th style="text-align: right; width: 12.5%;">Rata-Rata</th>
+                    <th style="width: 18%;">Tanggal</th>
+                    <th style="width: 18%;">Kategori</th>
+                    <th style="width: 34%;">Nama Barang</th>
+                    <th style="text-align: right; width: 15%;">Harga Kemarin</th>
+                    <th style="text-align: right; width: 15%;">Harga Hari Ini</th>
                 </tr>
             </thead>
             <tbody>
@@ -83,10 +81,8 @@
                         <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                         <td>{{ ucfirst($item->kategori) }}</td>
                         <td>{{ $item->nama_barang }}</td>
-                        <td style="text-align: right">{{ number_format($item->harga_pedagang_1 ?? 0, 0, ',', '.') }}</td>
-                        <td style="text-align: right">{{ number_format($item->harga_pedagang_2 ?? 0, 0, ',', '.') }}</td>
-                        <td style="text-align: right">{{ number_format($item->harga_pedagang_3 ?? 0, 0, ',', '.') }}</td>
-                        <td style="text-align: right">{{ number_format($item->harga_hari_ini ?? 0, 0, ',', '.') }}</td>
+                        <td style="text-align: right">{{ number_format($item->harga_kemarin ?? 0, 0, ',', '.') }}</td>
+                        <td style="text-align: right">{{ number_format($item->harga_hari_ini, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
