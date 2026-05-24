@@ -23,10 +23,11 @@ class DashboardController extends Controller
             abort(403, 'Akun ini belum ditugaskan ke pasar manapun.');
         }
 
-        // Data harga pasar ini yang sudah published
+        // Data harga pasar ini yang sudah published HARI INI
         $data_harga = DB::table('harga_harians')
             ->where('pasar_id', $pasar->id)
             ->where('status', 'published')
+            ->where('tanggal', date('Y-m-d'))
             ->orderBy('created_at', 'desc')
             ->get();
 

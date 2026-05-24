@@ -30,8 +30,8 @@ class DashboardController extends Controller
         if ($pasar_aktif) {
             $data_harga = DB::table('harga_harians')
                 ->where('pasar_id', $pasar_aktif->id)
+                ->where('tanggal', date('Y-m-d'))
                 ->orderBy('created_at', 'desc')
-                ->limit(50)
                 ->get();
         }
 

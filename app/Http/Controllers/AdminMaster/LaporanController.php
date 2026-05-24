@@ -29,6 +29,7 @@ class LaporanController extends Controller
                 ->select(
                     'pasars.nama_pasar',
                     'harga_harians.*',
+                    'input_pedagang.harga_pedagang',
                     'input_pedagang.harga_pedagang_1',
                     'input_pedagang.harga_pedagang_2',
                     'input_pedagang.harga_pedagang_3'

@@ -71,9 +71,7 @@
                     <th style="width: 12%;">Tanggal</th>
                     <th style="width: 13%;">Kategori</th>
                     <th style="width: 25%;">Nama Barang</th>
-                    <th style="text-align: right; width: 12.5%;">Pedagang 1</th>
-                    <th style="text-align: right; width: 12.5%;">Pedagang 2</th>
-                    <th style="text-align: right; width: 12.5%;">Pedagang 3</th>
+                    <th style="text-align: right; width: 37.5%;">Harga Pedagang</th>
                     <th style="text-align: right; width: 12.5%;">Rata-Rata</th>
                 </tr>
             </thead>
@@ -83,9 +81,22 @@
                         <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                         <td>{{ ucfirst($item->kategori) }}</td>
                         <td>{{ $item->nama_barang }}</td>
-                        <td style="text-align: right">{{ number_format($item->harga_pedagang_1 ?? 0, 0, ',', '.') }}</td>
-                        <td style="text-align: right">{{ number_format($item->harga_pedagang_2 ?? 0, 0, ',', '.') }}</td>
-                        <td style="text-align: right">{{ number_format($item->harga_pedagang_3 ?? 0, 0, ',', '.') }}</td>
+                        @php
+                            $hargaPedagangText = '-';
+                            if (isset($item->harga_pedagang) && $item->harga_pedagang) {
+                                $array = json_decode($item->harga_pedagang, true);
+                                if (is_array($array)) {
+                                    $hargaPedagangText = implode(', ', array_map(function($v) { return number_format($v, 0, ',', '.'); }, $array));
+                                }
+                            } else {
+                                $arr = [];
+                                if (isset($item->harga_pedagang_1) && $item->harga_pedagang_1) $arr[] = number_format($item->harga_pedagang_1, 0, ',', '.');
+                                if (isset($item->harga_pedagang_2) && $item->harga_pedagang_2) $arr[] = number_format($item->harga_pedagang_2, 0, ',', '.');
+                                if (isset($item->harga_pedagang_3) && $item->harga_pedagang_3) $arr[] = number_format($item->harga_pedagang_3, 0, ',', '.');
+                                if (count($arr) > 0) $hargaPedagangText = implode(', ', $arr);
+                            }
+                        @endphp
+                        <td style="text-align: right">{{ $hargaPedagangText }}</td>
                         <td style="text-align: right">{{ number_format($item->harga_hari_ini ?? 0, 0, ',', '.') }}</td>
                     </tr>
                 @endforeach

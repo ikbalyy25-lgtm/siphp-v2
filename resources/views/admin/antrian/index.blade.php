@@ -14,9 +14,9 @@
         .main { padding:28px 32px; }
         .card { background:white; border:1.5px solid var(--border); border-radius:16px; padding:24px; margin-bottom:20px; box-shadow:0 2px 8px rgba(45,106,79,0.05); }
         .pasar-header { display:flex; align-items:center; gap:12px; padding:14px 20px; background:#f5fdf7; border-radius:12px; margin-bottom:12px; border:1px solid var(--border); }
-        .row { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 140px; align-items:center; padding:12px 16px; border-bottom:1px solid #e8f5ee; font-size:13px; }
+        .row { display:grid; grid-template-columns:2fr 1fr 2fr 1fr 140px; align-items:center; padding:12px 16px; border-bottom:1px solid #e8f5ee; font-size:13px; }
         .row:hover { background:#f9fffe; }
-        .row-header { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 140px; padding:8px 16px; font-size:11px; font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:1px; }
+        .row-header { display:grid; grid-template-columns:2fr 1fr 2fr 1fr 140px; padding:8px 16px; font-size:11px; font-weight:700; color:var(--sub); text-transform:uppercase; letter-spacing:1px; }
         .btn-approve { background:#22c55e; color:white; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
         .btn-approve:hover { background:#16a34a; }
         .btn-tolak { background:#fee2e2; color:#dc2626; border:none; padding:7px 14px; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; }
@@ -85,9 +85,7 @@
         <div class="row-header">
             <span>Komoditas</span>
             <span>Kategori</span>
-            <span>Pedagang 1</span>
-            <span>Pedagang 2</span>
-            <span>Pedagang 3</span>
+            <span>Harga Pedagang</span>
             <span>Rata-rata</span>
             <span>Aksi</span>
         </div>
@@ -100,9 +98,15 @@
                 <div style="font-size:11px;color:var(--sub);">{{ $item->tanggal->format('d M Y') }} · oleh {{ $inp?->user?->name ?? 'admin' }}</div>
             </div>
             <div><span style="background:#f0faf4;color:var(--gd);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;">{{ ucfirst($item->kategori) }}</span></div>
-            <div style="font-weight:500;">Rp {{ $inp ? number_format($inp->harga_pedagang_1,0,',','.') : '-' }}</div>
-            <div style="font-weight:500;">Rp {{ $inp ? number_format($inp->harga_pedagang_2,0,',','.') : '-' }}</div>
-            <div style="font-weight:500;">Rp {{ $inp ? number_format($inp->harga_pedagang_3,0,',','.') : '-' }}</div>
+            <div style="font-weight:500; font-size: 11px; line-height:1.6; color:var(--sub);">
+                @if($inp && is_array($inp->hargaPedagangList))
+                    @foreach($inp->hargaPedagangList as $index => $harga)
+                        <div><span style="color:#9ab8a8;margin-right:4px;">P{{ $index + 1 }}</span> Rp {{ number_format($harga,0,',','.') }}</div>
+                    @endforeach
+                @else
+                    -
+                @endif
+            </div>
             <div style="font-weight:700;color:var(--gd);">Rp {{ number_format($item->harga_hari_ini,0,',','.') }}</div>
             <div style="display:flex;gap:6px;">
                 <form action="{{ route('admin.antrian.approve', $item->id) }}" method="POST">

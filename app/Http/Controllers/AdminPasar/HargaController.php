@@ -45,7 +45,17 @@ class HargaController extends Controller
         $pasar = $this->getPasar();
 
         // Daftar komoditas per kategori (sesuai seeder)
-        $daftarBarang = $this->getDaftarBarang($kategori);
+        $daftarBarangDefault = $this->getDaftarBarang($kategori);
+
+        // Ambil komoditas custom yang pernah diinputkan
+        $daftarBarangCustom = InputPedagang::where('kategori', $kategori)
+            ->whereNotIn('nama_barang', $daftarBarangDefault)
+            ->distinct()
+            ->pluck('nama_barang')
+            ->toArray();
+
+        $daftarBarang = array_merge($daftarBarangDefault, $daftarBarangCustom);
+        sort($daftarBarang);
 
         return view('admin_pasar.harga.create', compact('pasar', 'kategori', 'daftarBarang'));
     }
@@ -55,38 +65,38 @@ class HargaController extends Controller
     {
         $request->validate([
             'nama_barang'      => 'required|string',
+            'nama_barang_baru' => 'nullable|required_if:nama_barang,__baru__|string|max:255',
             'tanggal'          => 'required|date|before_or_equal:today',
-            'harga_pedagang_1' => 'required|numeric|min:1',
-            'harga_pedagang_2' => 'required|numeric|min:1',
-            'harga_pedagang_3' => 'required|numeric|min:1',
+            'harga_pedagang'   => 'required|array|min:1',
+            'harga_pedagang.*' => 'required|numeric|min:1',
             'kategori'         => 'required|in:pokok,subsidi,penting',
         ], [
-            'harga_pedagang_1.required' => 'Harga pedagang 1 wajib diisi',
-            'harga_pedagang_2.required' => 'Harga pedagang 2 wajib diisi',
-            'harga_pedagang_3.required' => 'Harga pedagang 3 wajib diisi',
+            'harga_pedagang.required'   => 'Minimal harus ada 1 harga pedagang',
+            'harga_pedagang.*.required' => 'Harga pedagang wajib diisi',
             'tanggal.before_or_equal'   => 'Tanggal tidak boleh lebih dari hari ini',
+            'nama_barang_baru.required_if' => 'Nama komoditas baru wajib diisi',
         ]);
 
         $pasar   = $this->getPasar();
         $user    = Auth::user();
 
-        // Hitung rata-rata
-        $rataRata = round(
-            ($request->harga_pedagang_1 + $request->harga_pedagang_2 + $request->harga_pedagang_3) / 3
-        );
+        $namaBarang = $request->nama_barang === '__baru__' ? $request->nama_barang_baru : $request->nama_barang;
 
-        DB::transaction(function () use ($request, $pasar, $user, $rataRata) {
-            // 1. Simpan 3 input pedagang
+        // Hitung rata-rata
+        $rataRata = count($request->harga_pedagang) > 0 
+            ? round(array_sum($request->harga_pedagang) / count($request->harga_pedagang)) 
+            : 0;
+
+        DB::transaction(function () use ($request, $pasar, $user, $rataRata, $namaBarang) {
+            // 1. Simpan input pedagang (bisa > 3 harga)
             $input = InputPedagang::create([
                 'pasar_id'         => $pasar->id,
                 'user_id'          => $user->id,
                 'kategori'         => $request->kategori,
-                'nama_barang'      => $request->nama_barang,
+                'nama_barang'      => $namaBarang,
                 'tanggal'          => $request->tanggal,
-                'harga_pedagang_1' => $request->harga_pedagang_1,
-                'harga_pedagang_2' => $request->harga_pedagang_2,
-                'harga_pedagang_3' => $request->harga_pedagang_3,
-                'rata_rata'        => $rataRata,
+                'harga_pedagang'   => $request->harga_pedagang,
+                // harga_pedagang_1, 2, 3 dan rata_rata otomatis diisi via boot method di Model
                 'status'           => 'terkirim',
             ]);
 
@@ -95,7 +105,7 @@ class HargaController extends Controller
                 'pasar_id'          => $pasar->id,
                 'input_pedagang_id' => $input->id,
                 'kategori'          => $request->kategori,
-                'nama_barang'       => $request->nama_barang,
+                'nama_barang'       => $namaBarang,
                 'tanggal'           => $request->tanggal,
                 'harga_hari_ini'    => $rataRata,
                 'status'            => 'pending',
@@ -106,7 +116,7 @@ class HargaController extends Controller
         });
 
         return redirect()->route('admin_pasar.harga.index', $request->kategori)
-            ->with('success', "Harga {$request->nama_barang} berhasil dikirim. Menunggu persetujuan Admin Master.");
+            ->with('success', "Harga {$namaBarang} berhasil dikirim. Menunggu persetujuan Admin Master.");
     }
 
     // Hapus input (hanya yang masih terkirim/belum diapprove)

@@ -7,7 +7,7 @@
 :root { --g:#d0f0c0; --gd:#2d6a4f; --gdd:#1e3a2f; --border:#d1e8d8; --text:#1a3a2a; --sub:#5a8a6a; }
 .inp { width:100%; padding:10px 14px; border-radius:10px; font-size:13px; border:1.5px solid var(--border); background:#f8fdf9; color:var(--text); outline:none; font-family:'Plus Jakarta Sans',sans-serif; transition:border-color 0.2s; }
 .inp:focus { border-color:var(--gd); }
-.row { display:grid; grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr 1fr; padding:13px 20px; border-bottom:1px solid #e8f5ee; align-items:center; background:white; transition:background 0.15s; font-size:13px; }
+.row { display:grid; grid-template-columns:2fr 1fr 2fr 1fr 1fr; padding:13px 20px; border-bottom:1px solid #e8f5ee; align-items:center; background:white; transition:background 0.15s; font-size:13px; }
 .row:hover { background:#f5fdf7; }
 @keyframes pulse2 { 0%,100%{opacity:1} 50%{opacity:0.35} }
 </style>
@@ -78,9 +78,7 @@
         <div class="row" style="background:linear-gradient(135deg,var(--gdd),var(--gd));color:var(--g);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;">
             <div>Nama Barang</div>
             <div style="text-align:center;">Tanggal</div>
-            <div style="text-align:right;padding-right:4px;">Pedagang 1</div>
-            <div style="text-align:right;padding-right:4px;">Pedagang 2</div>
-            <div style="text-align:right;padding-right:4px;">Pedagang 3</div>
+            <div style="text-align:right;padding-right:4px;">Harga Pedagang</div>
             <div style="text-align:right;padding-right:8px;">Rata-rata</div>
             <div style="text-align:center;">Status</div>
         </div>
@@ -98,9 +96,11 @@
                     {{ \Carbon\Carbon::parse($inp->tanggal)->format('d M Y') }}
                 </span>
             </div>
-            <div style="text-align:right;padding-right:4px;color:var(--sub);font-size:12px;">Rp {{ number_format($inp->harga_pedagang_1,0,',','.') }}</div>
-            <div style="text-align:right;padding-right:4px;color:var(--sub);font-size:12px;">Rp {{ number_format($inp->harga_pedagang_2,0,',','.') }}</div>
-            <div style="text-align:right;padding-right:4px;color:var(--sub);font-size:12px;">Rp {{ number_format($inp->harga_pedagang_3,0,',','.') }}</div>
+            <div style="text-align:right;padding-right:4px;color:var(--sub);font-size:12px;line-height:1.6;">
+                @foreach($inp->hargaPedagangList as $index => $harga)
+                    <div><span style="font-size:10px;color:#9ab8a8;margin-right:4px;">P{{ $index + 1 }}</span> Rp {{ number_format($harga,0,',','.') }}</div>
+                @endforeach
+            </div>
             <div style="text-align:right;padding-right:8px;font-weight:800;color:var(--gd);font-size:14px;">
                 Rp {{ number_format($inp->rata_rata,0,',','.') }}
             </div>
