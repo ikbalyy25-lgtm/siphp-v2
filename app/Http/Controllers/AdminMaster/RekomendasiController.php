@@ -62,7 +62,7 @@ class RekomendasiController extends Controller
             ]);
         }
 
-        $pythonPath = 'python';
+        $pythonPath = env('PYTHON_PATH', 'python');
         $scriptPath = base_path('ai_engine/xgboost_predict.py');
 
         // Pass system environment variables to fix Python init error on Windows
