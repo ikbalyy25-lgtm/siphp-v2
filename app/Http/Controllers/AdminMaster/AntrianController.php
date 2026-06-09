@@ -23,8 +23,7 @@ class AntrianController extends Controller
             ->pending()
             ->orderBy('tanggal', 'desc')
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->groupBy('pasar_id');
+            ->paginate(15);
 
         $totalPending = HargaHarian::pending()->count();
 

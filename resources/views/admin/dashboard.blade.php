@@ -328,7 +328,10 @@
 
         <a href="/admin/pengaduan" class="nav-item">
             <i class="fas fa-bell"></i> Pengaduan
-            @php $jmlPengaduan = \Illuminate\Support\Facades\DB::table('pengaduan')->count(); @endphp
+            @php 
+                $lastSeenId = session('last_seen_pengaduan_id', 0);
+                $jmlPengaduan = \Illuminate\Support\Facades\DB::table('pengaduan')->where('id', '>', $lastSeenId)->count(); 
+            @endphp
             @if($jmlPengaduan > 0)<span class="nav-badge">{{ $jmlPengaduan }}</span>@endif
         </a>
 

@@ -61,8 +61,9 @@ body{background:var(--bg);}
     {{-- Tabel --}}
     <div style="border-radius:16px;overflow:hidden;box-shadow:0 2px 14px rgba(45,106,79,0.08);border:1.5px solid var(--border);">
         {{-- Header --}}
-        <div style="display:grid;grid-template-columns:2.5fr 1.2fr 1.5fr 1.2fr 0.7fr;padding:13px 20px;background:linear-gradient(135deg,var(--gdd),var(--gd));color:var(--g);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;">
+        <div style="display:grid;grid-template-columns:2.5fr 1fr 1.2fr 1.5fr 1.2fr 0.7fr;padding:13px 20px;background:linear-gradient(135deg,var(--gdd),var(--gd));color:var(--g);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;">
             <div>Nama Barang</div>
+            <div style="text-align:center;">Satuan</div>
             <div style="text-align:center;">Tanggal</div>
             <div style="text-align:right;padding-right:8px;">Harga Rata-rata</div>
             <div style="text-align:center;">Status</div>
@@ -72,11 +73,15 @@ body{background:var(--bg);}
         {{-- Rows --}}
         <div id="tableBody">
         @forelse($data_harga ?? [] as $h)
-        <div class="harga-row data-row" data-nama="{{ strtolower($h->nama_barang) }}" data-status="{{ $h->status }}" style="grid-template-columns:2.5fr 1.2fr 1.5fr 1.2fr 0.7fr;">
+        <div class="harga-row data-row" data-nama="{{ strtolower($h->nama_barang) }}" data-status="{{ $h->status }}" style="grid-template-columns:2.5fr 1fr 1.2fr 1.5fr 1.2fr 0.7fr;">
 
             <div>
                 <div style="font-weight:700;color:var(--text);font-size:14px;">{{ $h->nama_barang }}</div>
                 <div style="font-size:11px;color:var(--sub);margin-top:2px;">{{ ucfirst($kategori) }}</div>
+            </div>
+
+            <div style="text-align:center;color:var(--sub);font-size:12px;font-weight:500;">
+                {{ $h->satuan && $h->satuan !== '-' ? $h->satuan : '-' }}
             </div>
 
             <div style="text-align:center;">

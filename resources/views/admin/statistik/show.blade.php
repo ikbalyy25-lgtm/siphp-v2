@@ -41,9 +41,6 @@
             </p>
         </div>
         <div style="display:flex;gap:8px;">
-            <button onclick="shareGrafik()" style="background:white;border:1.5px solid var(--border);color:var(--gd);border-radius:10px;padding:9px 16px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;">
-                <i class="fas fa-share-nodes"></i> Bagikan
-            </button>
             <button onclick="downloadChart()" style="background:var(--g);color:var(--gdd);border:none;border-radius:10px;padding:9px 16px;font-weight:700;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px;">
                 <i class="fas fa-download"></i> Unduh Grafik
             </button>

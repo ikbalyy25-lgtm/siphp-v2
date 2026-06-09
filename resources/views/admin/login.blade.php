@@ -380,6 +380,10 @@
 {{-- PANEL KANAN --}}
 <div class="panel-right">
 
+    <a href="{{ url('/') }}" style="position:absolute; top:32px; left:36px; display:inline-flex; align-items:center; gap:8px; color:#8aaa9a; font-size:12px; font-weight:700; text-decoration:none; transition:color 0.2s;" onmouseover="this.style.color='#2d6a4f'" onmouseout="this.style.color='#8aaa9a'">
+        <i class="fas fa-arrow-left"></i> Kembali ke Halaman Utama
+    </a>
+
     <div class="form-header">
         <img src="{{ asset('img/logo.png') }}" alt="Logo SIPHP"
             onerror="this.style.display='none'">

@@ -173,25 +173,43 @@
     </div>
 
     <div style="border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(45,106,79,0.08);border:1.5px solid var(--border);">
-        <div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1fr;padding:13px 20px;background:linear-gradient(135deg,var(--gdd),var(--gd));color:var(--g);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.5fr 1fr;padding:13px 20px;background:linear-gradient(135deg,var(--gdd),var(--gd));color:var(--g);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;text-align:center;">
             <div>Nama Barang</div>
-            <div style="text-align:center;">Tanggal</div>
-            <div style="text-align:right;padding-right:8px;">Harga Rata-rata</div>
-            <div style="text-align:center;">Kategori</div>
+            <div>Satuan</div>
+            <div>Kategori</div>
+            <div>Tanggal</div>
+            <div>Harga Rata-Rata</div>
+            <div>Status</div>
         </div>
 
         @forelse($data_harga->take(10) as $h)
-        <div style="display:grid;grid-template-columns:2fr 1fr 1.5fr 1fr;padding:13px 20px;border-bottom:1px solid #e8f5ee;align-items:center;background:white;transition:background 0.15s;font-size:13px;"
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.5fr 1fr;padding:13px 20px;border-bottom:1px solid #e8f5ee;align-items:center;background:white;transition:background 0.15s;font-size:13px;text-align:center;"
              onmouseover="this.style.background='#f5fdf7'" onmouseout="this.style.background='white'">
-            <div>
-                <div style="font-weight:700;color:var(--text);">{{ $h->nama_barang }}</div>
+            <div style="font-weight:700;color:var(--text);">
+                {{ $h->nama_barang }}
             </div>
-            <div style="text-align:center;font-size:12px;color:var(--sub);">{{ \Carbon\Carbon::parse($h->tanggal)->format('d M Y') }}</div>
-            <div style="text-align:right;padding-right:8px;font-weight:800;color:var(--gd);font-size:14px;">
+            <div style="color:var(--sub);font-size:12px;font-weight:500;">
+                {{ $h->satuan && $h->satuan !== '-' ? $h->satuan : '-' }}
+            </div>
+            <div style="color:var(--sub);font-size:12px;">
+                {{ ucfirst($h->kategori) }}
+            </div>
+            <div style="color:var(--sub);font-size:12px;">
+                {{ \Carbon\Carbon::parse($h->tanggal)->format('d M Y') }}
+            </div>
+            <div style="font-weight:800;color:var(--gd);font-size:14px;">
                 Rp {{ number_format($h->harga_hari_ini,0,',','.') }}
             </div>
-            <div style="text-align:center;">
-                <span style="background:#f0faf4;color:var(--gd);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;">{{ ucfirst($h->kategori) }}</span>
+            <div>
+                @if($h->status === 'published')
+                <span style="background:#dcfce7;color:#16a34a;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">
+                    <i class="fas fa-check"></i> Published
+                </span>
+                @else
+                <span style="background:#fef9c3;color:#b45309;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">
+                    <i class="fas fa-clock"></i> Pending
+                </span>
+                @endif
             </div>
         </div>
         @empty

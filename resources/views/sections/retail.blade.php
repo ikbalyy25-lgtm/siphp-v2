@@ -21,90 +21,89 @@
 
         @if($retails->count() > 0)
         {{-- Slider Container --}}
-        <div class="relative" id="retailSlider">
-            <div class="overflow-hidden" id="retailTrack">
-                <div class="flex gap-5 transition-transform duration-500 ease-in-out" id="retailCards" style="transform: translateX(0);">
-                    @foreach($retails as $i => $retail)
-                    <div class="flex-shrink-0 w-72 md:w-80 rounded-2xl overflow-hidden shadow-2xl group"
-                        style="background: linear-gradient(160deg, #1e3a2f 0%, #0d2b1a 100%); border: 1px solid rgba(208,240,192,0.15);">
+        <div class="relative group" id="retailSlider">
+            {{-- Tambahkan custom css untuk hide scrollbar --}}
+            <style>
+                .hide-scroll::-webkit-scrollbar { display: none; }
+                .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+            </style>
 
-                        {{-- Gambar --}}
-                        <div style="width:100%; height:176px; overflow:hidden; position:relative; background:rgba(208,240,192,0.08); flex-shrink:0;">
-                            @if($retail->gambar)
-                                <img src="{{ url('storage/' . $retail->gambar) }}"
-                                    style="width:100%; height:100%; object-fit:cover; display:block; transition: transform 0.5s;"
-                                    onmouseover="this.style.transform='scale(1.08)'"
-                                    onmouseout="this.style.transform='scale(1)'"
-                                    onerror="this.style.display='none'; document.getElementById('noimg_{{ $retail->id }}').style.display='flex';">
-                                <div id="noimg_{{ $retail->id }}" style="display:none; width:100%; height:100%; align-items:center; justify-content:center;">
-                                    <i class="fas fa-store" style="font-size:2rem; color:rgba(208,240,192,0.3);"></i>
-                                </div>
-                            @else
-                                <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-                                    <i class="fas fa-store" style="font-size:2rem; color:rgba(208,240,192,0.3);"></i>
-                                </div>
-                            @endif
-                            <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(13,27,26,0.8) 0%, transparent 60%);"></div>
-                            <div class="absolute bottom-3 left-4 right-4">
-                                <h3 class="font-extrabold text-base uppercase truncate" style="color: #d0f0c0;">
-                                    {{ $retail->nama_toko }}
-                                </h3>
+            <div class="overflow-x-auto snap-x snap-mandatory flex gap-5 hide-scroll pb-6" id="retailCards" style="scroll-behavior: smooth;">
+                @foreach($retails as $i => $retail)
+                <div class="snap-center flex-shrink-0 w-72 md:w-80 rounded-2xl overflow-hidden shadow-2xl"
+                    style="background: linear-gradient(160deg, #1e3a2f 0%, #0d2b1a 100%); border: 1px solid rgba(208,240,192,0.15);">
+
+                    {{-- Gambar --}}
+                    <div style="width:100%; height:176px; overflow:hidden; position:relative; background:rgba(208,240,192,0.08); flex-shrink:0;">
+                        @if($retail->gambar)
+                            <img src="{{ url('storage/' . $retail->gambar) }}"
+                                style="width:100%; height:100%; object-fit:cover; display:block; transition: transform 0.5s;"
+                                onmouseover="this.style.transform='scale(1.08)'"
+                                onmouseout="this.style.transform='scale(1)'"
+                                onerror="this.style.display='none'; document.getElementById('noimg_{{ $retail->id }}').style.display='flex';">
+                            <div id="noimg_{{ $retail->id }}" style="display:none; width:100%; height:100%; align-items:center; justify-content:center;">
+                                <i class="fas fa-store" style="font-size:2rem; color:rgba(208,240,192,0.3);"></i>
                             </div>
-                            <div class="absolute top-3 right-3">
-                                <span class="text-xs font-bold px-2 py-1 rounded-full"
-                                    style="background: rgba(208,240,192,0.2); color: #d0f0c0; backdrop-filter: blur(4px);">
-                                    {{ $retail->kategori }}
-                                </span>
+                        @else
+                            <div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+                                <i class="fas fa-store" style="font-size:2rem; color:rgba(208,240,192,0.3);"></i>
                             </div>
+                        @endif
+                        <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(13,27,26,0.8) 0%, transparent 60%);"></div>
+                        <div class="absolute bottom-3 left-4 right-4">
+                            <h3 class="font-extrabold text-base uppercase truncate" style="color: #d0f0c0;">
+                                {{ $retail->nama_toko }}
+                            </h3>
                         </div>
-
-                        {{-- Konten --}}
-                        <div class="p-4 space-y-2.5">
-                            <div class="flex items-start gap-2.5 text-sm">
-                                <i class="fas fa-map-marker-alt mt-0.5 flex-shrink-0" style="color: #d0f0c0;"></i>
-                                <span class="text-gray-300 leading-snug text-xs">{{ \Illuminate\Support\Str::limit($retail->alamat, 45) }}</span>
-                            </div>
-                            <div class="flex items-center gap-2.5 text-sm">
-                                <i class="fas fa-phone flex-shrink-0" style="color: #d0f0c0;"></i>
-                                <span class="text-gray-300 text-xs">{{ $retail->kontak }}</span>
-                            </div>
-                            <div class="flex items-center gap-2.5 text-sm">
-                                <i class="fas fa-clock flex-shrink-0" style="color: #d0f0c0;"></i>
-                                <span class="text-gray-300 text-xs">{{ $retail->jam_buka }}</span>
-                            </div>
-                        </div>
-
-                        <div class="px-4 pb-4">
-                            <a href="{{ $retail->link_maps }}" target="_blank"
-                                class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold transition duration-300 hover:opacity-90"
-                                style="background: linear-gradient(135deg, #d0f0c0, #4ade80); color: #0d2b1a;">
-                                <i class="fas fa-directions text-xs"></i> Kunjungi
-                            </a>
+                        <div class="absolute top-3 right-3">
+                            <span class="text-xs font-extrabold px-3 py-1.5 rounded-full shadow-md"
+                                style="background: #d0f0c0; color: #0d2b1a;">
+                                {{ $retail->kategori }}
+                            </span>
                         </div>
                     </div>
-                    @endforeach
+
+                    {{-- Konten --}}
+                    <div class="p-4 space-y-2.5">
+                        <div class="flex items-start gap-2.5 text-sm">
+                            <i class="fas fa-map-marker-alt mt-0.5 flex-shrink-0" style="color: #d0f0c0;"></i>
+                            <span class="text-gray-300 leading-snug text-xs">{{ \Illuminate\Support\Str::limit($retail->alamat, 45) }}</span>
+                        </div>
+                        <div class="flex items-center gap-2.5 text-sm">
+                            <i class="fas fa-phone flex-shrink-0" style="color: #d0f0c0;"></i>
+                            <span class="text-gray-300 text-xs">{{ $retail->kontak }}</span>
+                        </div>
+                        <div class="flex items-center gap-2.5 text-sm">
+                            <i class="fas fa-clock flex-shrink-0" style="color: #d0f0c0;"></i>
+                            <span class="text-gray-300 text-xs">{{ $retail->jam_buka }}</span>
+                        </div>
+                    </div>
+
+                    <div class="px-4 pb-4">
+                        <a href="{{ $retail->link_maps }}" target="_blank"
+                            class="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold transition duration-300 hover:opacity-90"
+                            style="background: linear-gradient(135deg, #d0f0c0, #4ade80); color: #0d2b1a;">
+                            <i class="fas fa-directions text-xs"></i> Kunjungi
+                        </a>
+                    </div>
                 </div>
+                @endforeach
             </div>
 
-            {{-- Navigasi --}}
-            @if($retails->count() > 4)
-            <button id="prevBtn" onclick="slideRetail(-1)"
-                class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-10 transition"
+            {{-- Navigasi (Hanya muncul jika lebih dari 1 agar bisa digeser) --}}
+            @if($retails->count() > 1)
+            <button onclick="scrollRetail(-1)"
+                class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-4 w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-10 transition opacity-0 md:opacity-100 md:group-hover:opacity-100"
                 style="background: #d0f0c0; color: #0d2b1a;">
                 <i class="fas fa-chevron-left text-sm"></i>
             </button>
-            <button id="nextBtn" onclick="slideRetail(1)"
-                class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-10 transition"
+            <button onclick="scrollRetail(1)"
+                class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-4 w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-10 transition opacity-0 md:opacity-100 md:group-hover:opacity-100"
                 style="background: #d0f0c0; color: #0d2b1a;">
                 <i class="fas fa-chevron-right text-sm"></i>
             </button>
             @endif
         </div>
-
-        {{-- Dots indikator --}}
-        @if($retails->count() > 4)
-        <div class="flex justify-center gap-2 mt-6" id="retailDots"></div>
-        @endif
 
         @else
         <div class="text-center py-16">
@@ -116,41 +115,10 @@
 </section>
 
 <script>
-(function() {
-    const cards = document.getElementById('retailCards');
-    if (!cards) return;
-    const total = {{ $retails->count() }};
-    const perView = window.innerWidth >= 768 ? 4 : 1;
-    const cardW = (window.innerWidth >= 768 ? 320 : 288) + 20;
-    let current = 0;
-    const maxSlide = Math.max(0, total - perView);
-
-    function updateDots() {
-        const dots = document.getElementById('retailDots');
-        if (!dots) return;
-        const pages = Math.ceil(total / perView);
-        dots.innerHTML = '';
-        for (let i = 0; i < pages; i++) {
-            const d = document.createElement('button');
-            d.className = 'w-2 h-2 rounded-full transition-all duration-300';
-            d.style.background = i === Math.floor(current / perView) ? '#d0f0c0' : 'rgba(208,240,192,0.3)';
-            d.style.width = i === Math.floor(current / perView) ? '24px' : '8px';
-            d.onclick = () => { current = i * perView; slide(); };
-            dots.appendChild(d);
-        }
+    function scrollRetail(dir) {
+        const container = document.getElementById('retailCards');
+        if (!container) return;
+        const cardW = (window.innerWidth >= 768 ? 320 : 288) + 20; // width + gap
+        container.scrollBy({ left: dir * cardW, behavior: 'smooth' });
     }
-
-    function slide() {
-        current = Math.max(0, Math.min(current, maxSlide));
-        cards.style.transform = `translateX(-${current * cardW}px)`;
-        updateDots();
-    }
-
-    window.slideRetail = function(dir) {
-        current += dir * perView;
-        slide();
-    };
-
-    updateDots();
-})();
 </script>

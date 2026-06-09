@@ -17,6 +17,11 @@ class PengaduanController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $maxId = DB::table('pengaduan')->max('id');
+        if ($maxId) {
+            session(['last_seen_pengaduan_id' => $maxId]);
+        }
+
         return view('admin.pengaduan.index', compact('pengaduan'));
     }
 

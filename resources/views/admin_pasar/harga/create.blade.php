@@ -69,7 +69,7 @@
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
         <a href="{{ route('admin_pasar.harga.index', $kategori) }}" class="btn-secondary" style="padding:9px 16px;"><i class="fas fa-arrow-left"></i></a>
         <div>
-            <h1 style="font-size:20px;font-weight:800;color:var(--gdd);margin:0;">Input Harga Komoditas</h1>
+            <h1 style="font-size:20px;font-weight:800;color:var(--gdd);margin:0;">Input Harga Barang</h1>
             <p style="font-size:12px;color:var(--sub);margin:3px 0 0;">
                 Kategori: <b>{{ ucfirst($kategori) }}</b> — {{ $pasar->nama_pasar }}
             </p>
@@ -96,19 +96,19 @@
                 <input type="hidden" name="kategori" value="{{ $kategori }}">
 
                 <div class="form-group">
-                    <label>Nama Komoditas</label>
+                    <label>Nama Barang</label>
                     <select name="nama_barang" id="nama_barang" required onchange="toggleNamaBarangBaru(); updatePreview();">
-                        <option value="">-- Pilih Komoditas --</option>
+                        <option value="">-- Pilih Barang --</option>
+                        <option value="__baru__" {{ old('nama_barang') == '__baru__' ? 'selected' : '' }}>Lainnya (Input Barang Baru)</option>
                         @foreach($daftarBarang as $barang)
                         <option value="{{ $barang }}" {{ old('nama_barang') == $barang ? 'selected' : '' }}>{{ $barang }}</option>
                         @endforeach
-                        <option value="__baru__" {{ old('nama_barang') == '__baru__' ? 'selected' : '' }}>Lainnya (Input Komoditas Baru)</option>
                     </select>
                 </div>
                 
                 <div class="form-group" id="container_nama_barang_baru" style="{{ old('nama_barang') == '__baru__' ? '' : 'display: none;' }}">
-                    <label>Nama Komoditas Baru</label>
-                    <input type="text" name="nama_barang_baru" id="nama_barang_baru" value="{{ old('nama_barang_baru') }}" placeholder="Masukkan nama komoditas...">
+                    <label>Nama Barang Baru</label>
+                    <input type="text" name="nama_barang_baru" id="nama_barang_baru" value="{{ old('nama_barang_baru') }}" placeholder="Masukkan nama barang...">
                 </div>
 
                 <div class="form-group">

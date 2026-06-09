@@ -34,6 +34,9 @@
     {{-- Header --}}
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
         <div>
+            <a href="{{ route('admin.dashboard') }}" style="display:inline-flex; align-items:center; gap:6px; color:var(--sub); font-size:13px; font-weight:700; text-decoration:none; margin-bottom:12px; transition:color 0.2s; background:white; padding:6px 12px; border-radius:8px; border:1px solid var(--border);" onmouseover="this.style.color='var(--gd)'; this.style.borderColor='var(--gd)';" onmouseout="this.style.color='var(--sub)'; this.style.borderColor='var(--border)';">
+                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+            </a>
             <h1 style="font-size:22px;font-weight:800;color:var(--gdd);margin:0;">
                 <i class="fas fa-inbox" style="color:var(--gd);margin-right:10px;"></i>Antrian Harga Masuk
             </h1>
@@ -69,30 +72,22 @@
     </div>
     @else
 
-    {{-- Kelompok per pasar --}}
-    @foreach($antrian as $pasarId => $items)
-    @php $pasar = $items->first()->pasar; @endphp
-    <div class="card">
-        <div class="pasar-header">
-            <i class="fas fa-store" style="color:var(--gd);font-size:16px;"></i>
-            <div>
-                <div style="font-size:14px;font-weight:700;color:var(--gdd);">{{ $pasar->nama_pasar }}</div>
-                <div style="font-size:12px;color:var(--sub);">{{ $items->count() }} data menunggu</div>
-            </div>
-            <span class="badge-pending" style="margin-left:auto;">{{ $items->count() }} Pending</span>
-        </div>
-
-        <div class="row-header">
+    <div class="card" style="padding:0; overflow:hidden;">
+        <div class="row-header" style="grid-template-columns: 1.5fr 2fr 1fr 2fr 1fr 140px; background:linear-gradient(135deg,var(--gdd),var(--gd)); color:var(--g); border:none;">
+            <span>Pasar</span>
             <span>Komoditas</span>
             <span>Kategori</span>
             <span>Harga Pedagang</span>
             <span>Rata-rata</span>
-            <span>Aksi</span>
+            <span style="text-align:center;">Aksi</span>
         </div>
 
-        @foreach($items as $item)
+        @foreach($antrian as $item)
         @php $inp = $item->inputPedagang; @endphp
-        <div class="row">
+        <div class="row" style="grid-template-columns: 1.5fr 2fr 1fr 2fr 1fr 140px;">
+            <div>
+                <div style="font-weight:700;color:var(--gdd);"><i class="fas fa-store" style="color:var(--gd);margin-right:6px;"></i>{{ $item->pasar->nama_pasar }}</div>
+            </div>
             <div>
                 <div style="font-weight:600;color:#1a3a2a;">{{ $item->nama_barang }} @if($item->satuan && $item->satuan !== '-') <span style="font-size:11px; color:var(--sub);">• {{ $item->satuan }}</span> @endif</div>
                 <div style="font-size:11px;color:var(--sub);">{{ $item->tanggal->format('d M Y') }} · oleh {{ $inp?->user?->name ?? 'admin' }}</div>
@@ -108,7 +103,7 @@
                 @endif
             </div>
             <div style="font-weight:700;color:var(--gd);">Rp {{ number_format($item->harga_hari_ini,0,',','.') }}</div>
-            <div style="display:flex;gap:6px;">
+            <div style="display:flex;gap:6px;justify-content:center;">
                 <form action="{{ route('admin.antrian.approve', $item->id) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn-approve" title="Setujui"><i class="fas fa-check"></i></button>
@@ -122,7 +117,11 @@
         </div>
         @endforeach
     </div>
-    @endforeach
+
+    {{-- Pagination --}}
+    <div style="margin-top: 24px;">
+        {{ $antrian->links('pagination::tailwind') }}
+    </div>
 
     @endif
 </main>

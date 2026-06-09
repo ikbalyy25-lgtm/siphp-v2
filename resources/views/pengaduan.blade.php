@@ -136,6 +136,7 @@
                             <option value="los kosong" {{ old('kategori') == 'los kosong' ? 'selected' : '' }}>Los Kosong</option>
                             <option value="harga" {{ old('kategori') == 'harga' ? 'selected' : '' }}>Harga</option>
                             <option value="sistem" {{ old('kategori') == 'sistem' ? 'selected' : '' }}>Sistem</option>
+                            <option value="lainnya" {{ old('kategori') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
                         </select>
                         @error('kategori')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>

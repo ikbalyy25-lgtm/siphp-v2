@@ -67,6 +67,7 @@ Route::middleware(['auth', 'role:admin_master'])
 
     // ── REKOMENDASI HARGA OPTIMAL (fitur utama) ──
     Route::get('/rekomendasi',           [App\Http\Controllers\AdminMaster\RekomendasiController::class, 'index'])->name('rekomendasi.index');
+    Route::post('/rekomendasi/analyze',  [App\Http\Controllers\AdminMaster\RekomendasiController::class, 'analyze'])->name('rekomendasi.analyze');
     Route::get('/rekomendasi/komparasi', [App\Http\Controllers\AdminMaster\RekomendasiController::class, 'komparasi'])->name('rekomendasi.komparasi');
 
     // Statistik
@@ -113,7 +114,8 @@ Route::middleware(['auth', 'role:kepala_dinas'])
     Route::get('/dashboard',    [App\Http\Controllers\KepalaDinas\DashboardController::class, 'index'])->name('dashboard');
 
     // ── REKOMENDASI HARGA (fitur utama kepala dinas) ──
-    Route::get('/rekomendasi',  [App\Http\Controllers\KepalaDinas\RekomendasiController::class, 'index'])->name('rekomendasi');
+    Route::get('/rekomendasi',          [App\Http\Controllers\KepalaDinas\RekomendasiController::class, 'index'])->name('rekomendasi');
+    Route::post('/rekomendasi/analyze', [App\Http\Controllers\KepalaDinas\RekomendasiController::class, 'analyze'])->name('rekomendasi.analyze');
 
     Route::get('/laporan',      [App\Http\Controllers\KepalaDinas\DashboardController::class, 'laporan'])->name('laporan');
     Route::get('/laporan/unduh',[App\Http\Controllers\KepalaDinas\DashboardController::class, 'unduh'])->name('laporan.unduh');
@@ -157,6 +159,7 @@ Route::middleware(['auth', 'role:admin_master'])
     Route::delete('/antrian/{id}/tolak', [App\Http\Controllers\AdminMaster\AntrianController::class, 'tolak'])->name('antrian.tolak');
     Route::post('/antrian/approve-all',  [App\Http\Controllers\AdminMaster\AntrianController::class, 'approveAll'])->name('antrian.approveAll');
     Route::get('/rekomendasi',         [App\Http\Controllers\AdminMaster\RekomendasiController::class, 'index'])->name('rekomendasi.index');
+    Route::post('/rekomendasi/analyze', [App\Http\Controllers\AdminMaster\RekomendasiController::class, 'analyze'])->name('rekomendasi.analyze');
     Route::get('/harga/{kategori}',    [App\Http\Controllers\AdminMaster\HargaController::class, 'index'])->name('harga.index');
     Route::get('/harga/{kategori}/input', [App\Http\Controllers\AdminMaster\HargaController::class, 'create'])->name('harga.create');
     Route::post('/harga',              [App\Http\Controllers\AdminMaster\HargaController::class, 'store'])->name('harga.store');

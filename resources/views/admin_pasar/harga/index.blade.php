@@ -7,7 +7,7 @@
 :root { --g:#d0f0c0; --gd:#2d6a4f; --gdd:#1e3a2f; --border:#d1e8d8; --text:#1a3a2a; --sub:#5a8a6a; }
 .inp { width:100%; padding:10px 14px; border-radius:10px; font-size:13px; border:1.5px solid var(--border); background:#f8fdf9; color:var(--text); outline:none; font-family:'Plus Jakarta Sans',sans-serif; transition:border-color 0.2s; }
 .inp:focus { border-color:var(--gd); }
-.row { display:grid; grid-template-columns:2fr 1fr 2fr 1fr 1fr; padding:13px 20px; border-bottom:1px solid #e8f5ee; align-items:center; background:white; transition:background 0.15s; font-size:13px; }
+.row { display:grid; grid-template-columns:2fr 1fr 1fr 2fr 1fr 1.5fr; padding:13px 20px; border-bottom:1px solid #e8f5ee; align-items:center; background:white; transition:background 0.15s; font-size:13px; }
 .row:hover { background:#f5fdf7; }
 @keyframes pulse2 { 0%,100%{opacity:1} 50%{opacity:0.35} }
 </style>
@@ -77,6 +77,7 @@
         {{-- Header --}}
         <div class="row" style="background:linear-gradient(135deg,var(--gdd),var(--gd));color:var(--g);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;">
             <div>Nama Barang</div>
+            <div style="text-align:center;">Satuan</div>
             <div style="text-align:center;">Tanggal</div>
             <div style="text-align:right;padding-right:4px;">Harga Pedagang</div>
             <div style="text-align:right;padding-right:8px;">Rata-rata</div>
@@ -89,9 +90,10 @@
         <div class="row data-row" data-nama="{{ strtolower($inp->nama_barang) }}" data-status="{{ $inp->status }}">
             <div>
                 <div style="font-weight:700;color:var(--text);">{{ $inp->nama_barang }}</div>
-                <div style="font-size:11px;color:var(--sub);margin-top:1px;">
-                    {{ ucfirst($inp->kategori) }} @if($inp->satuan && $inp->satuan !== '-') • {{ $inp->satuan }} @endif
-                </div>
+                <div style="font-size:11px;color:var(--sub);margin-top:1px;">{{ ucfirst($inp->kategori) }}</div>
+            </div>
+            <div style="text-align:center;color:var(--sub);font-size:12px;font-weight:500;">
+                {{ $inp->satuan && $inp->satuan !== '-' ? $inp->satuan : '-' }}
             </div>
             <div style="text-align:center;">
                 <span style="background:#f0faf4;color:var(--sub);border:1px solid var(--border);border-radius:7px;padding:3px 8px;font-size:11px;font-weight:600;white-space:nowrap;">

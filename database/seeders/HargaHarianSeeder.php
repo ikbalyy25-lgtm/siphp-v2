@@ -107,16 +107,16 @@ class HargaHarianSeeder extends Seeder
                         $ts        = $tanggal->copy()->setTime(7, rand(0, 59));
 
                         $rows[] = [
-                            'pasar_id'       => $pasarId,
-                            'pedagang_id'    => null,
-                            'kategori'       => $kategori,
-                            'nama_barang'    => $namaBarang,
-                            'tanggal'        => $tanggal->format('Y-m-d'),
-                            'harga_kemarin'  => $kemarin,
-                            'harga_hari_ini' => $hariIni,
-                            'status'         => 'update',
-                            'created_at'     => $ts,
-                            'updated_at'     => $ts,
+                            'pasar_id'          => $pasarId,
+                            'input_pedagang_id' => null,
+                            'kategori'          => $kategori,
+                            'nama_barang'       => $namaBarang,
+                            'satuan'            => '-',
+                            'tanggal'           => $tanggal->format('Y-m-d'),
+                            'harga_hari_ini'    => $hariIni,
+                            'status'            => 'published',
+                            'created_at'        => $ts,
+                            'updated_at'        => $ts,
                         ];
                     }
                 }

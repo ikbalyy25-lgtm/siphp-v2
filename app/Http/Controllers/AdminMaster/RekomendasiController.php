@@ -6,17 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use Symfony\Component\Process\Process;
+
 // ============================================================
 //  AdminMaster\RekomendasiController
-//  INTI SISTEM: Rekomendasi Harga Optimal
-//
-//  Logika rekomendasi:
-//  - Kumpulkan harga terbaru per komoditas dari semua pasar
-//  - Hitung: rata-rata, harga terendah, harga tertinggi
-//  - Harga optimal = harga yang direkomendasikan kepada pedagang
-//    (diambil dari harga terendah yang wajar = di atas 80% rata-rata)
-//  - Flagging: pasar yang harganya di atas 110% rata-rata = TINGGI
-//  - Flagging: pasar yang harganya di bawah 90% rata-rata  = RENDAH
+//  INTI SISTEM: Rekomendasi Harga Optimal dengan XGBoost
 // ============================================================
 class RekomendasiController extends Controller
 {
@@ -24,110 +18,87 @@ class RekomendasiController extends Controller
     {
         $kategori = $request->get('kategori', 'pokok');
 
-        // Ambil harga terbaru per komoditas per pasar (published saja)
-        $hargaTerbaru = DB::table('harga_harians as h')
-            ->join(
-                DB::raw('(SELECT pasar_id, nama_barang, satuan, MAX(tanggal) as max_tgl
-                          FROM harga_harians
-                          WHERE status = "published"
-                          GROUP BY pasar_id, nama_barang, satuan) as latest'),
-                function ($join) {
-                    $join->on('h.pasar_id', '=', 'latest.pasar_id')
-                         ->on('h.nama_barang', '=', 'latest.nama_barang')
-                         ->on('h.satuan', '=', 'latest.satuan')
-                         ->on('h.tanggal', '=', 'latest.max_tgl');
-                }
-            )
-            ->join('pasars', 'h.pasar_id', '=', 'pasars.id')
-            ->where('h.status', 'published')
-            ->where('h.kategori', $kategori)
-            ->select(
-                'h.nama_barang',
-                'h.kategori',
-                'h.satuan',
-                'h.harga_hari_ini',
-                'h.tanggal',
-                'pasars.id as pasar_id',
-                'pasars.nama_pasar'
-            )
-            ->orderBy('h.nama_barang')
-            ->get();
+        // Ambil semua komoditas unik untuk dropdown
+        $komoditasList = DB::table('harga_harians')
+            ->where('status', 'published')
+            ->where('kategori', $kategori)
+            ->distinct()
+            ->orderBy('nama_barang')
+            ->pluck('nama_barang');
 
-        // Kelompokkan per komoditas dan hitung statistik
-        $rekomendasi = $hargaTerbaru
-            ->groupBy(function($item) {
-                return $item->nama_barang . '|' . $item->satuan;
-            })
-            ->map(function ($items, $namaBarang) {
-                // Parse namaBarang to remove the suffix
-                $parts = explode('|', $namaBarang);
-                $cleanNamaBarang = $parts[0] ?? $namaBarang;
-                $satuan = $parts[1] ?? '-';
-                
-                $hargaList = $items->pluck('harga_hari_ini');
-                $rataRata  = round($hargaList->avg());
-                $minimum   = $hargaList->min();
-                $maksimum  = $hargaList->max();
-
-                // Harga optimal: rata-rata harga yang tidak terlalu jauh dari minimum
-                // (menghindari outlier yang terlalu tinggi)
-                $batasWajar   = $rataRata * 1.10;
-                $hargaWajar   = $hargaList->filter(fn($h) => $h <= $batasWajar);
-                $hargaOptimal = $hargaWajar->count() > 0
-                    ? round($hargaWajar->avg())
-                    : $rataRata;
-
-                // Selisih persentase maks vs min
-                $selisihPersen = $minimum > 0
-                    ? round((($maksimum - $minimum) / $minimum) * 100, 1)
-                    : 0;
-
-                // Flagging tiap pasar
-                $detailPasar = $items->map(function ($item) use ($rataRata) {
-                    $persen = $rataRata > 0
-                        ? round((($item->harga_hari_ini - $rataRata) / $rataRata) * 100, 1)
-                        : 0;
-                    $flag = 'normal';
-                    if ($persen > 10)  $flag = 'tinggi';
-                    if ($persen < -10) $flag = 'rendah';
-                    return [
-                        'pasar_id'    => $item->pasar_id,
-                        'nama_pasar'  => $item->nama_pasar,
-                        'harga'       => $item->harga_hari_ini,
-                        'tanggal'     => $item->tanggal,
-                        'selisih_pct' => $persen,
-                        'flag'        => $flag,
-                    ];
-                })->values();
-
-                return [
-                    'nama_barang'   => $cleanNamaBarang,
-                    'satuan'        => $satuan,
-                    'harga_optimal' => $hargaOptimal,
-                    'rata_rata'     => $rataRata,
-                    'harga_min'     => $minimum,
-                    'harga_max'     => $maksimum,
-                    'selisih_persen'=> $selisihPersen,
-                    'jumlah_pasar'  => $items->count(),
-                    'detail_pasar'  => $detailPasar,
-                    'perlu_perhatian' => $selisihPersen > 15, // flag merah jika disparitas > 15%
-                ];
-            })
-            ->sortBy('nama_barang')
-            ->values();
-
-        // Ringkasan untuk header
         $ringkasan = [
-            'total_komoditas'   => $rekomendasi->count(),
-            'perlu_perhatian'   => $rekomendasi->where('perlu_perhatian', true)->count(),
-            'total_pasar'       => DB::table('pasars')->count(),
-            'terakhir_update'   => DB::table('harga_harians')
-                                     ->where('status', 'published')
-                                     ->where('kategori', $kategori)
-                                     ->max('tanggal'),
+            'total_komoditas' => $komoditasList->count(),
+            'total_pasar' => DB::table('pasars')->count(),
+            'terakhir_update' => DB::table('harga_harians')
+                ->where('status', 'published')
+                ->where('kategori', $kategori)
+                ->max('tanggal'),
         ];
 
-        return view('admin.rekomendasi.index', compact('rekomendasi', 'kategori', 'ringkasan'));
+        return view('admin.rekomendasi.index', compact('kategori', 'komoditasList', 'ringkasan'));
+    }
+
+    public function analyze(Request $request)
+    {
+        $namaBarang = $request->get('nama_barang');
+        $kategori = $request->get('kategori', 'pokok');
+
+        if (!$namaBarang) {
+            return response()->json(['success' => false, 'message' => 'Nama barang harus diisi']);
+        }
+
+        // Ambil data historis dari database
+        $historis = DB::table('harga_harians')
+            ->where('status', 'published')
+            ->where('nama_barang', $namaBarang)
+            ->where('kategori', $kategori)
+            ->orderBy('tanggal', 'asc')
+            ->get(['tanggal', 'harga_hari_ini as harga']);
+
+        if ($historis->count() < 5) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Data historis tidak mencukupi (minimal 5 data).'
+            ]);
+        }
+
+        $pythonPath = 'python';
+        $scriptPath = base_path('ai_engine/xgboost_predict.py');
+
+        // Pass system environment variables to fix Python init error on Windows
+        $env = [
+            'SystemRoot' => getenv('SystemRoot') ?: 'C:\\WINDOWS',
+            'PATH' => getenv('PATH'),
+            'TEMP' => getenv('TEMP'),
+            'TMP' => getenv('TMP'),
+            'USERPROFILE' => getenv('USERPROFILE')
+        ];
+
+        $process = new Process([$pythonPath, $scriptPath], null, $env);
+        $process->setInput(json_encode($historis->toArray()));
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error menjalankan model AI: ' . $process->getErrorOutput()
+            ]);
+        }
+
+        $output = json_decode($process->getOutput(), true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($output)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Output invalid dari Python script: ' . $process->getOutput()
+            ]);
+        }
+
+        if (isset($output['error'])) {
+            return response()->json(['success' => false, 'message' => $output['error']]);
+        }
+
+        return response()->json($output);
     }
 
     // API & View: data komparasi harga antar pasar untuk grafik
