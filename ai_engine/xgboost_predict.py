@@ -148,6 +148,8 @@ def main():
             "chart": {
                 "historical_dates": historical_dates,
                 "historical_prices": historical_prices,
+                "historical_min": df_daily['harga_min'].tolist(),
+                "historical_max": df_daily['harga_max'].tolist(),
                 "test_dates": test_dates,
                 "test_predictions": test_predictions
             }

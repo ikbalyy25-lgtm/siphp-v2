@@ -88,7 +88,7 @@
         {{-- FORM --}}
         <div class="card">
             <h2 style="font-size:16px;font-weight:700;color:var(--gdd);margin:0 0 24px;">
-                <i class="fas fa-edit" style="color:var(--gd);margin-right:8px;"></i>Form Input Harga 3 Pedagang
+                <i class="fas fa-edit" style="color:var(--gd);margin-right:8px;"></i>Form Input Harga Pedagang
             </h2>
 
             <form action="{{ route('admin_pasar.harga.store') }}" method="POST" id="formHarga">

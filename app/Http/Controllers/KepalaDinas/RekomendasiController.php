@@ -98,6 +98,26 @@ class RekomendasiController extends Controller
             return response()->json(['success' => false, 'message' => $output['error']]);
         }
 
+        $latestDate = DB::table('harga_harians')
+            ->where('status', 'published')
+            ->where('nama_barang', $namaBarang)
+            ->where('kategori', $kategori)
+            ->max('tanggal');
+
+        $disparitas = DB::table('harga_harians as h')
+            ->join('pasars', 'h.pasar_id', '=', 'pasars.id')
+            ->where('h.status', 'published')
+            ->where('h.kategori', $kategori)
+            ->where('h.nama_barang', $namaBarang)
+            ->where('h.tanggal', $latestDate)
+            ->select('pasars.nama_pasar', 'h.harga_hari_ini')
+            ->get();
+
+        $output['disparitas'] = [
+            'tanggal' => $latestDate,
+            'data' => $disparitas
+        ];
+
         return response()->json($output);
     }
 }

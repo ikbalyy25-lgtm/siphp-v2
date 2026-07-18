@@ -201,6 +201,31 @@
                 </div>
 
             </div>
+
+            {{-- Panel Bawah: Tambahan Grafik Volatilitas dan Disparitas --}}
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(400px, 1fr));gap:24px;margin-top:24px;">
+                
+                {{-- Grafik Volatilitas Harian --}}
+                <div class="card" style="margin-bottom:0;display:flex;flex-direction:column;">
+                    <div style="font-size:16px;font-weight:800;color:var(--gdd);margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+                        <i class="fas fa-water" style="color:var(--gd);"></i> Volatilitas Harian
+                    </div>
+                    <div style="position:relative;flex:1;min-height:300px;width:100%;">
+                        <canvas id="volatilityChart"></canvas>
+                    </div>
+                </div>
+
+                {{-- Grafik Disparitas Antar Pasar --}}
+                <div class="card" style="margin-bottom:0;display:flex;flex-direction:column;">
+                    <div style="font-size:16px;font-weight:800;color:var(--gdd);margin-bottom:20px;display:flex;align-items:center;gap:8px;">
+                        <i class="fas fa-scale-unbalanced" style="color:var(--gd);"></i> Disparitas Antar Pasar
+                    </div>
+                    <div style="position:relative;flex:1;min-height:300px;width:100%;">
+                        <canvas id="disparityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -208,6 +233,8 @@
 
 <script>
 let chartInstance = null;
+let volChartInstance = null;
+let dispChartInstance = null;
 const csrfToken = '{{ csrf_token() }}';
 const endpoint = '{{ route("kepala_dinas.rekomendasi.analyze") }}'; 
 const currentCategory = '{{ $kategori }}';
@@ -306,6 +333,8 @@ async function analyzeData() {
         document.getElementById('resTanggal').textContent = 'Per ' + formatTanggalIndo(data.next_date);
 
         renderChart(data.chart.historical_dates, data.chart.historical_prices, data.chart.test_dates, data.chart.test_predictions, data.next_date, data.predicted_price);
+        renderVolatilityChart(data.chart.historical_dates, data.chart.historical_prices, data.chart.historical_min, data.chart.historical_max, data.next_date, data.predicted_price);
+        renderDisparityChart(data.disparitas.data, data.predicted_price);
         
         document.getElementById('resultSection').style.display = 'block';
 
@@ -417,6 +446,170 @@ function renderChart(histDates, histPrices, testDates, testPrices, nextDate, nex
                         }
                     }
                 }
+            }
+        }
+    });
+}
+
+function renderVolatilityChart(histDates, histPrices, histMin, histMax, nextDate, nextPrice) {
+    const ctx = document.getElementById('volatilityChart').getContext('2d');
+    if(volChartInstance) volChartInstance.destroy();
+
+    const allDates = [...histDates, nextDate];
+    const avgData = [...histPrices, null];
+    const minData = [...histMin, null];
+    const maxData = [...histMax, null];
+
+    volChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: allDates,
+            datasets: [
+                {
+                    label: 'Harga Minimum',
+                    data: minData,
+                    borderColor: 'rgba(45, 106, 79, 0.4)',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4],
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.3
+                },
+                {
+                    label: 'Harga Maksimum',
+                    data: maxData,
+                    borderColor: 'rgba(45, 106, 79, 0.4)',
+                    borderWidth: 1.5,
+                    borderDash: [4, 4],
+                    backgroundColor: 'rgba(45, 106, 79, 0.12)', // Tema Hijau SIPHP
+                    pointRadius: 0,
+                    fill: '-1',
+                    tension: 0.3
+                },
+                {
+                    label: 'Rata-rata Harian',
+                    data: avgData,
+                    borderColor: '#2d6a4f',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#2d6a4f',
+                    pointRadius: 3,
+                    fill: false,
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { grid: { color: '#e8f5ee' }, ticks: { callback: function(value) { return 'Rp ' + new Intl.NumberFormat('id-ID').format(value); } } }
+            }
+        }
+    });
+}
+
+function renderDisparityChart(disparitasData, recommendedPrice) {
+    const ctx = document.getElementById('disparityChart').getContext('2d');
+    if(dispChartInstance) dispChartInstance.destroy();
+
+    const labels = disparitasData.map(d => d.nama_pasar.replace(/^Pasar\s+/i, ''));
+    const dataPrices = disparitasData.map(d => parseFloat(d.harga_hari_ini));
+    const recData = new Array(labels.length).fill(recommendedPrice);
+
+    const insideBarLabelPlugin = {
+        id: 'insideBarLabel',
+        afterDatasetsDraw(chart) {
+            const { ctx, data } = chart;
+            const meta = chart.getDatasetMeta(1);
+            if(!meta.hidden) {
+                ctx.save();
+                ctx.font = 'bold 12px "Plus Jakarta Sans"';
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                meta.data.forEach((bar, index) => {
+                    const label = data.labels[index];
+                    ctx.save();
+                    ctx.translate(bar.x, bar.base - 15);
+                    ctx.rotate(-Math.PI / 2);
+                    ctx.fillText(label, 0, 3);
+                    ctx.restore();
+                });
+                ctx.restore();
+            }
+        }
+    };
+
+    dispChartInstance = new Chart(ctx, {
+        type: 'bar',
+        plugins: [insideBarLabelPlugin],
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'Rekomendasi XGBoost',
+                    data: recData,
+                    borderColor: '#16a34a',
+                    borderWidth: 2, 
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false
+                },
+                {
+                    type: 'bar',
+                    label: 'Harga Aktual per Pasar',
+                    data: dataPrices,
+                    backgroundColor: 'rgba(45, 106, 79, 0.6)', // Tema Hijau SIPHP
+                    borderRadius: 6,
+                    barPercentage: 0.6,
+                    maxBarThickness: 45
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+                legend: { position: 'top' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) label += ': ';
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: { 
+                    grid: { display: false },
+                    ticks: { display: false } // Nama pasar sudah di dalam diagram batang
+                },
+                y: { grid: { color: '#e8f5ee' }, ticks: { callback: function(value) { return 'Rp ' + new Intl.NumberFormat('id-ID').format(value); } } }
             }
         }
     });
